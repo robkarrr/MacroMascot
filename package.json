@@ -9,13 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@mantine/core": "^5.9.6",
+    "@mantine/ds": "^5.9.6",
+    "@mantine/hooks": "^5.9.6",
+    "@mantine/prism": "^5.9.6",
     "@next/font": "13.1.0",
+    "@tabler/icons": "^1.119.0",
+    "axios": "^1.2.2",
     "eslint": "8.30.0",
     "eslint-config-next": "13.1.0",
     "firebase": "^9.15.0",
     "next": "13.1.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "styled": "^1.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",
