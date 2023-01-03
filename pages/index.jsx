@@ -3,16 +3,15 @@ import {
   Text,
   Container,
   Button,
-  Overlay,
-  createStyles,
   TextInput,
   ActionIcon,
+  Overlay,
+  createStyles,
 } from "@mantine/core"
-
-import axios from "axios"
-import {useState} from 'react'
-
 import { IconSearch, IconArrowRight, IconArrowLeft } from "@tabler/icons"
+import { useState } from "react"
+import FoodArticle from "../Components/FoodArticle"
+
 const useStyles = createStyles((theme) => ({
   wrapper: {
     position: "relative",
@@ -103,23 +102,31 @@ const useStyles = createStyles((theme) => ({
 export default function HeroImageBackground() {
   const { classes, cx } = useStyles()
   const [query, setQuery] = useState("")
+  const [foodData, setFoodData] = useState(null)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-
-
-    // Make an Axios request with the query and headers
-    const response = await fetch(`https://api.api-ninjas.com/v1/nutrition?query=${query}`, {
-      method: 'GET',
-      headers: {
-        'X-Api-Key':`${process.env.NEXT_PUBLIC_FOODNINJA_API_KEY}`
+    // Make an fetch request with the query and headers
+    const response = await fetch(
+      `https://api.api-ninjas.com/v1/nutrition?query=${query}`,
+      {
+        method: "GET",
+        headers: {
+          "X-Api-Key": `${process.env.NEXT_PUBLIC_FOODNINJA_API_KEY}`,
+        },
       }
-    })
-    const data =  await response.json()
+    )
+    const data = await response.json()
 
     // Do something with the data
     console.log(data)
+    setFoodData(data)
+  }
+
+  const clearData = () => {
+    setFoodData(null)
+
   }
 
   return (
@@ -161,6 +168,8 @@ export default function HeroImageBackground() {
             />
           </form>
         </div>
+
+        <div>{foodData && <FoodArticle food={foodData} clear={clearData}/>}</div>
       </div>
     </div>
   )
