@@ -12,6 +12,7 @@ import { IconSearch, IconArrowRight, IconArrowLeft } from "@tabler/icons"
 import { useState } from "react"
 import FoodArticle from "../Components/FoodArticle"
 import FoodAPI from "../services/FoodAPI"
+import { useAuthContext } from "../context/AuthContext"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -104,6 +105,7 @@ export default function HeroImageBackground() {
   const { classes, cx } = useStyles()
   const [query, setQuery] = useState("")
   const [foodData, setFoodData] = useState(null)
+  const { currentUser } = useAuthContext()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -111,12 +113,15 @@ export default function HeroImageBackground() {
     const data = await FoodAPI.getFoodData(query)
 
     setFoodData(data)
+
+    console.log(currentUser)
   }
 
   const clearData = () => {
     setFoodData(null)
 
   }
+
 
   return (
     <div height={"100vh"} className={classes.wrapper}>
@@ -125,9 +130,13 @@ export default function HeroImageBackground() {
       <div className={classes.inner}>
         <Title className={classes.title}>
           Welcome Back{" "}
-          <Text component="span" inherit className={classes.highlight}>
-            Robin
-          </Text>
+
+          {currentUser && 
+            <Text component="span" inherit className={classes.highlight}>
+             {currentUser.displayName}
+            </Text>
+          }
+         
         </Title>
 
         <Container size={640}>

@@ -13,8 +13,8 @@ import {
   ScrollArea,
 } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
-import Link from 'next/link'
-import { MantineLogo } from '@mantine/ds';
+import Link from "next/link"
+import { useAuthContext } from "../context/AuthContext"
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -56,22 +56,20 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-
-
 export default function Navbar() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false)
 
   const { classes, theme } = useStyles()
-
+  const { currentUser, logout } = useAuthContext()
 
   return (
     <Box>
       <Header height={60} px="md">
         <Group position="apart" sx={{ height: "100%" }}>
-            <Link href="/">
-                <h1>MacroMascot</h1>
-            </Link>
+          <Link href="/">
+            <h1>MacroMascot</h1>
+          </Link>
 
           <Group
             sx={{ height: "100%" }}
@@ -107,8 +105,20 @@ export default function Navbar() {
           </Group>
 
           <Group className={classes.hiddenMobile}>
-            <Button variant="default">Log in</Button>
-            <Button className="bg-blue-500">Sign up</Button>
+            {currentUser ? (
+              <Button onClick={() => logout()} variant="default">
+                Log Out
+              </Button>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="default">Log in</Button>
+                </Link>
+                <Link href="register">
+                  <Button className="bg-blue-500">Sign up</Button>
+                </Link>
+              </>
+            )}
           </Group>
 
           <Burger
@@ -157,8 +167,20 @@ export default function Navbar() {
           />
 
           <Group position="center" grow pb="xl" px="md">
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+          {currentUser ? (
+              <Button onClick={() => logout()} variant="default">
+                Log Out
+              </Button>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="default">Log in</Button>
+                </Link>
+                <Link href="register">
+                  <Button className="bg-blue-500">Sign up</Button>
+                </Link>
+              </>
+            )}
           </Group>
         </ScrollArea>
       </Drawer>
