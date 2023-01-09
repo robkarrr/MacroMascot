@@ -7,14 +7,14 @@ import {
 	updateProfile,
 	updatePassword,
 } from "firebase/auth";
-import { auth, db, storage } from "../firebase";
+import { auth, db } from "../firebase";
 import {
 	setDoc,
 	doc,
 	getDoc,
 	updateDoc,
 } from "firebase/firestore";
-import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
+
 
 
 const AuthContext = createContext();
@@ -92,7 +92,6 @@ const AuthContextProvider = ({ children }) => {
 				const snapshot = await getDoc(ref);
 
                 setIsAdmin(snapshot.data()?.admin);
-
 
 				setUserEmail(user.email);
 			}
