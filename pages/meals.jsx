@@ -9,7 +9,7 @@ import {
 } from "@mantine/core"
 import useGetMeals from "../hooks/useGetMeals"
 import { db } from "../firebase"
-import { doc, setDoc } from "firebase/firestore"
+import { doc, setDoc, updateDoc, arrayUnion, arrayRemove, } from "firebase/firestore"
 import { useAuthContext } from "../context/AuthContext"
 import {
   IconSwitchHorizontal,
@@ -102,7 +102,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 function meals() {
   const { classes, cx } = useStyles()
   const [active, setActive] = useState("meal1")
-  const { docs: meals, lodaing, error } = useGetMeals()
+  const { docs: meals } = useGetMeals()
   const { docs: mealProducts } = useGetMealProducts(active)
   const [query, setQuery] = useState("")
   const [foodData, setFoodData] = useState()
@@ -121,20 +121,27 @@ function meals() {
 
   const AddToMeal = async (name, srv, p, c, f, s) => {
     console.log(foodData.name)
-    await setDoc(
-      doc(db, "users", `${currentUser.uid}`, "meals", `${active}`, 'products', `${name}`),
-      {
-        name,
-        serving_size: srv,
-        calories: c,
-        protein: p,
-        fat: f,
-        sugar: s,
-      }
-    )
+
+    const mealRef = doc(db, 'users', `${currentUser.uid}`, 'meals', `meal1`);
+
+    await updateDoc(mealRef, {
+      products: arrayUnion(
+        {
+          name,
+          serving_size: srv,
+          calories: c,
+          protein: p,
+          fat: f,
+          sugar: s,
+        }
+      )
+    })
+    
   }
 
   // const newMeal = async () => {}
+
+  console.log(meals)
 
   return (
     <div className="flex">
