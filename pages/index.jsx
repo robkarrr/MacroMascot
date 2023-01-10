@@ -119,7 +119,6 @@ export default function HeroImageBackground() {
 
   const clearData = () => {
     setFoodData(null)
-
   }
 
 
@@ -167,7 +166,10 @@ export default function HeroImageBackground() {
           </form>
         </div>
 
-        <div>{foodData && <FoodArticle food={foodData} clear={clearData}/>}</div>
+        <div>{foodData && foodData.map((f) => (
+          <FoodArticle food={f} clear={clearData}/>
+        ))}
+        </div>
       </div>
     </div>
   )

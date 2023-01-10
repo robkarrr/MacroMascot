@@ -8,8 +8,9 @@ import {
   TextInput,
 } from "@mantine/core"
 import useGetMeals from "../hooks/useGetMeals"
-import { useAuthContext } from "../context/AuthContext"
+import { db } from "../firebase"
 import { doc, setDoc } from "firebase/firestore"
+import { useAuthContext } from "../context/AuthContext"
 import {
   IconSwitchHorizontal,
   IconLogout,
@@ -104,9 +105,8 @@ function meals() {
   const { docs: meals, lodaing, error } = useGetMeals()
   const { docs: mealProducts } = useGetMealProducts(active)
   const [query, setQuery] = useState("")
-  const [foodData, setFoodData] = useState(null)
-
-  console.log(mealProducts)
+  const [foodData, setFoodData] = useState()
+  const { currentUser } = useAuthContext()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -114,19 +114,27 @@ function meals() {
     setFoodData(data)
     console.log(data)
   }
-
+  
   const clearData = () => {
     setFoodData(null)
   }
 
-  const AddToMeal = async () => {
-    // Add a new document in collection "cities"
-    await setDoc(doc(db, "cities", "LA"), {
-      name: "Los Angeles",
-      state: "CA",
-      country: "USA",
-    })
+  const AddToMeal = async (name, srv, p, c, f, s) => {
+    console.log(foodData.name)
+    await setDoc(
+      doc(db, "users", `${currentUser.uid}`, "meals", `${active}`, 'products', `${name}`),
+      {
+        name,
+        serving_size: srv,
+        calories: c,
+        protein: p,
+        fat: f,
+        sugar: s,
+      }
+    )
   }
+
+  // const newMeal = async () => {}
 
   return (
     <div className="flex">
@@ -154,7 +162,13 @@ function meals() {
                 rightSectionWidth={42}
               />
             </form>
-            {foodData && <FoodArticle food={foodData} clear={clearData} />}
+            {foodData?.map((f) => (
+              <FoodArticle
+              food={f}
+              clear={clearData}
+              add={() => AddToMeal(f.name, f.serving_size_g, f.calories, f.protein_g, f.fat_total_g, f.sugar_g)}
+            />
+            ))}
           </Group>
           {meals &&
             meals.map((item) => (
@@ -197,9 +211,8 @@ function meals() {
 
       <div>
         <ul>
-          {mealProducts && mealProducts.map((p) => (
-              <li key={p.id}>{p.name}</li>
-            ))}
+          {mealProducts &&
+            mealProducts.map((p) => <li key={p.id}>{p.name}</li>)}
         </ul>
       </div>
     </div>

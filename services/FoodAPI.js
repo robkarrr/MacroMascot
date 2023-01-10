@@ -13,8 +13,6 @@ const getFoodData = async (query) => {
   )
   const data = await response.json()
 
-  // Do something with the data
-  console.log(data)
   return data
 }
 
