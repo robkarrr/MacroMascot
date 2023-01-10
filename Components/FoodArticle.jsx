@@ -3,12 +3,12 @@ function FoodArticle({ food, clear }) {
         <div>
             <ul>
                 {food.map((f) => (
-                    <>
+                    <div key={f.id}>
                         <li>{f.name}</li>
                         <li>{f.calories}</li>
                         <li>{f.protein_g}</li>
                         <li>{f.serving_size_g}</li>
-                    </>
+                    </div>
                 ))}
             </ul>
 

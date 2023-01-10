@@ -1,19 +1,24 @@
 import { useState } from "react"
-import { createStyles, Navbar, Group, Code, Button } from "@mantine/core"
+import {
+  createStyles,
+  Navbar,
+  Group,
+  Button,
+  ActionIcon,
+  TextInput,
+} from "@mantine/core"
 import useGetMeals from "../hooks/useGetMeals"
 import { useAuthContext } from "../context/AuthContext"
+import { doc, setDoc } from "firebase/firestore"
 import {
-  IconBellRinging,
-  IconFingerprint,
-  IconKey,
-  IconSettings,
-  Icon2fa,
-  IconDatabaseImport,
-  IconReceipt2,
   IconSwitchHorizontal,
   IconLogout,
+  IconSearch,
+  IconArrowRight,
 } from "@tabler/icons"
-import useGetUser from "../hooks/useGetUser"
+import FoodArticle from "../Components/FoodArticle"
+import FoodAPI from "../services/FoodAPI"
+import useGetMealProducts from "../hooks/useGetMealProdcuts"
 
 const useStyles = createStyles((theme, _params, getRef) => {
   const icon = getRef("icon")
@@ -95,52 +100,109 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 function meals() {
   const { classes, cx } = useStyles()
-  const [active, setActive] = useState("Billing")
+  const [active, setActive] = useState("meal1")
   const { docs: meals, lodaing, error } = useGetMeals()
+  const { docs: mealProducts } = useGetMealProducts(active)
+  const [query, setQuery] = useState("")
+  const [foodData, setFoodData] = useState(null)
+
+  console.log(mealProducts)
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    const data = await FoodAPI.getFoodData(query)
+    setFoodData(data)
+    console.log(data)
+  }
+
+  const clearData = () => {
+    setFoodData(null)
+  }
+
+  const AddToMeal = async () => {
+    // Add a new document in collection "cities"
+    await setDoc(doc(db, "cities", "LA"), {
+      name: "Los Angeles",
+      state: "CA",
+      country: "USA",
+    })
+  }
 
   return (
-    <Navbar height={700} width={{ sm: 300 }} p="md">
-      <Navbar.Section grow>
-        <Group className={classes.header} position="apart">
-          <Code sx={{ fontWeight: 700 }}>Your Meals</Code>
-        </Group>
-        {meals && meals.map((item) => (
+    <div className="flex">
+      <Navbar height={700} width={{ sm: 300 }} p="md">
+        <Navbar.Section grow>
+          <Group className={classes.header} position="apart">
+            <form onSubmit={handleSubmit}>
+              <TextInput
+                icon={<IconSearch size={18} stroke={1.5} />}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                radius="xl"
+                size="md"
+                rightSection={
+                  <ActionIcon
+                    size={32}
+                    radius="xl"
+                    variant="filled"
+                    className="bg-blue-500"
+                  >
+                    <IconArrowRight size={18} stroke={1.5} />
+                  </ActionIcon>
+                }
+                placeholder="Search questions"
+                rightSectionWidth={42}
+              />
+            </form>
+            {foodData && <FoodArticle food={foodData} clear={clearData} />}
+          </Group>
+          {meals &&
+            meals.map((item) => (
+              <a
+                className={cx(classes.link, {
+                  [classes.linkActive]: item.name === active,
+                })}
+                key={item.id}
+                onClick={(event) => {
+                  event.preventDefault()
+                  setActive(item.name)
+                }}
+              >
+                <span>{item.name}</span>
+              </a>
+            ))}
+          <Button className={cx(classes.link)}>New meal +</Button>
+        </Navbar.Section>
+
+        <Navbar.Section className={classes.footer}>
           <a
-            className={cx(classes.link, {
-              [classes.linkActive]: item.name === active,
-            })}
-            key={item.id}
-            onClick={(event) => {
-              event.preventDefault()
-              setActive(item.name)
-            }}
+            href="#"
+            className={classes.link}
+            onClick={(event) => event.preventDefault()}
           >
-            <span>{item.name}</span>
+            <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
+            <span>Change account</span>
           </a>
-        ))}
-        <Button className={cx(classes.link)}>New meal +</Button>
-      </Navbar.Section>
 
-      <Navbar.Section className={classes.footer}>
-        <a
-          href="#"
-          className={classes.link}
-          onClick={(event) => event.preventDefault()}
-        >
-          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-          <span>Change account</span>
-        </a>
+          <a
+            href="#"
+            className={classes.link}
+            onClick={(event) => event.preventDefault()}
+          >
+            <IconLogout className={classes.linkIcon} stroke={1.5} />
+            <span>Logout</span>
+          </a>
+        </Navbar.Section>
+      </Navbar>
 
-        <a
-          href="#"
-          className={classes.link}
-          onClick={(event) => event.preventDefault()}
-        >
-          <IconLogout className={classes.linkIcon} stroke={1.5} />
-          <span>Logout</span>
-        </a>
-      </Navbar.Section>
-    </Navbar>
+      <div>
+        <ul>
+          {mealProducts && mealProducts.map((p) => (
+              <li key={p.id}>{p.name}</li>
+            ))}
+        </ul>
+      </div>
+    </div>
   )
 }
 
