@@ -7,19 +7,20 @@ import {
   ActionIcon,
   TextInput,
 } from "@mantine/core"
-import useGetMeals from "../hooks/useGetMeals"
-import { db } from "../firebase"
+import useGetMeals from "../../hooks/useGetMeals"
+import { db } from "../../firebase"
 import { doc, setDoc, updateDoc, arrayUnion, arrayRemove, } from "firebase/firestore"
-import { useAuthContext } from "../context/AuthContext"
+import { useAuthContext } from "../../context/AuthContext"
 import {
   IconSwitchHorizontal,
   IconLogout,
   IconSearch,
   IconArrowRight,
 } from "@tabler/icons"
-import FoodArticle from "../Components/FoodArticle"
-import FoodAPI from "../services/FoodAPI"
-import useGetMealProducts from "../hooks/useGetMealProdcuts"
+import FoodArticle from "../../Components/FoodArticle"
+import FoodAPI from "../../services/FoodAPI"
+import useGetMeal from '../../hooks/useGetMeals'
+import Link from "next/link"
 
 const useStyles = createStyles((theme, _params, getRef) => {
   const icon = getRef("icon")
@@ -101,96 +102,22 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 function meals() {
   const { classes, cx } = useStyles()
-  const [active, setActive] = useState("meal1")
   const { docs: meals } = useGetMeals()
-  const { docs: mealProducts } = useGetMealProducts(active)
-  const [query, setQuery] = useState("")
-  const [foodData, setFoodData] = useState()
   const { currentUser } = useAuthContext()
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    const data = await FoodAPI.getFoodData(query)
-    setFoodData(data)
-    console.log(data)
-  }
-  
-  const clearData = () => {
-    setFoodData(null)
-  }
-
-  const AddToMeal = async (name, srv, p, c, f, s) => {
-    console.log(foodData.name)
-
-    const mealRef = doc(db, 'users', `${currentUser.uid}`, 'meals', `meal1`);
-
-    await updateDoc(mealRef, {
-      products: arrayUnion(
-        {
-          name,
-          serving_size: srv,
-          calories: c,
-          protein: p,
-          fat: f,
-          sugar: s,
-        }
-      )
-    })
-    
-  }
-
-  // const newMeal = async () => {}
-
-  console.log(meals)
 
   return (
     <div className="flex">
       <Navbar height={700} width={{ sm: 300 }} p="md">
         <Navbar.Section grow>
-          <Group className={classes.header} position="apart">
-            <form onSubmit={handleSubmit}>
-              <TextInput
-                icon={<IconSearch size={18} stroke={1.5} />}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                radius="xl"
-                size="md"
-                rightSection={
-                  <ActionIcon
-                    size={32}
-                    radius="xl"
-                    variant="filled"
-                    className="bg-blue-500"
-                  >
-                    <IconArrowRight size={18} stroke={1.5} />
-                  </ActionIcon>
-                }
-                placeholder="Search questions"
-                rightSectionWidth={42}
-              />
-            </form>
-            {foodData?.map((f) => (
-              <FoodArticle
-              food={f}
-              clear={clearData}
-              add={() => AddToMeal(f.name, f.serving_size_g, f.calories, f.protein_g, f.fat_total_g, f.sugar_g)}
-            />
-            ))}
-          </Group>
           {meals &&
             meals.map((item) => (
-              <a
-                className={cx(classes.link, {
-                  [classes.linkActive]: item.name === active,
-                })}
+              <Link
+                href={`/meals/${item.name}`}
+                className={cx(classes.link)}
                 key={item.id}
-                onClick={(event) => {
-                  event.preventDefault()
-                  setActive(item.name)
-                }}
               >
                 <span>{item.name}</span>
-              </a>
+              </Link>
             ))}
           <Button className={cx(classes.link)}>New meal +</Button>
         </Navbar.Section>
@@ -215,13 +142,6 @@ function meals() {
           </a>
         </Navbar.Section>
       </Navbar>
-
-      <div>
-        <ul>
-          {mealProducts &&
-            mealProducts.map((p) => <li key={p.id}>{p.name}</li>)}
-        </ul>
-      </div>
     </div>
   )
 }
