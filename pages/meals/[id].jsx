@@ -7,6 +7,7 @@ import FoodArticle from "../../Components/FoodArticle"
 import FoodAPI from "../../services/FoodAPI"
 import useGetMeal from "../../hooks/useGetMeal"
 import { db } from "../../firebase"
+import { useAuthContext } from "../../context/AuthContext"
 
 function meal() {
   const router = useRouter()
@@ -14,6 +15,7 @@ function meal() {
   const [query, setQuery] = useState("")
   const [foodData, setFoodData] = useState()
   const { docs: meal } = useGetMeal(id)
+  const { currentUser } = useAuthContext()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
