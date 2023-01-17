@@ -79,29 +79,15 @@ export default function Navbar() {
             <Link href="/" className={classes.link}>
               Home
             </Link>
-            <HoverCard
-              width={600}
-              position="bottom"
-              radius="md"
-              shadow="md"
-              withinPortal
-            >
-              <HoverCard.Target>
-                <a href="#" className={classes.link}>
-                  <Center inline>
-                    <Box component="span" mr={5}>
-                      Features
-                    </Box>
-                  </Center>
-                </a>
-              </HoverCard.Target>
-            </HoverCard>
-            <a href="#" className={classes.link}>
-              Learn
-            </a>
-            <a href="#" className={classes.link}>
-              Academy
-            </a>
+            <Link href="/meals" className={classes.link}>
+              Meals
+            </Link>
+            <Link href="/goals" className={classes.link}>
+              Goals
+            </Link>
+            <Link href="/track" className={classes.link}>
+              Track
+            </Link>
           </Group>
 
           <Group className={classes.hiddenMobile}>
