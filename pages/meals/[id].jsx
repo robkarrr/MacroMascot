@@ -89,7 +89,7 @@ function meal() {
           <>
             <p>{meal?.name}</p>
             <ul>
-              {meal?.products.map((p) => (
+              {meal.products?.map((p) => (
                 <li>{p.name}</li>
               ))}
             </ul>

@@ -9,17 +9,12 @@ import {
 } from "@mantine/core"
 import useGetMeals from "../../hooks/useGetMeals"
 import { db } from "../../firebase"
-import { doc, setDoc, updateDoc, arrayUnion, arrayRemove, } from "firebase/firestore"
-import { useAuthContext } from "../../context/AuthContext"
 import {
-  IconSwitchHorizontal,
-  IconLogout,
-  IconSearch,
-  IconArrowRight,
-} from "@tabler/icons"
-import FoodArticle from "../../Components/FoodArticle"
-import FoodAPI from "../../services/FoodAPI"
-import useGetMeal from '../../hooks/useGetMeals'
+  doc,
+  setDoc,
+} from "firebase/firestore"
+import { useAuthContext } from "../../context/AuthContext"
+import { IconSearch, IconArrowRight } from "@tabler/icons"
 import Link from "next/link"
 
 const useStyles = createStyles((theme, _params, getRef) => {
@@ -103,11 +98,44 @@ const useStyles = createStyles((theme, _params, getRef) => {
 function meals() {
   const { classes, cx } = useStyles()
   const { docs: meals } = useGetMeals()
+  const [query, setQuery] = useState("")
   const { currentUser } = useAuthContext()
+
+  const newMeal = async (event) => {
+    event.preventDefault()
+    await setDoc(doc(db, `users/${currentUser.uid}/meals/${query}`), {
+      name: query,
+    });
+  }
 
   return (
     <div className="flex">
       <Navbar height={700} width={{ sm: 300 }} p="md">
+        <Group className={classes.header} position="apart">
+          <form onSubmit={newMeal}>
+            <TextInput
+              icon={<IconSearch size={18} stroke={1.5} />}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              radius="xl"
+              size="md"
+              required={true}
+              rightSection={
+                <ActionIcon
+                  size={32}
+                  radius="xl"
+                  variant="filled"
+                  className="bg-blue-500"
+                >
+                  <IconArrowRight size={18} stroke={1.5} />
+                </ActionIcon>
+              }
+              placeholder="Meal Name"
+              rightSectionWidth={42}
+            />
+            <Button type='submit' className={cx(classes.link)}>New meal +</Button>
+          </form>
+        </Group>
         <Navbar.Section grow>
           {meals &&
             meals.map((item) => (
@@ -119,27 +147,6 @@ function meals() {
                 <span>{item.name}</span>
               </Link>
             ))}
-          <Button className={cx(classes.link)}>New meal +</Button>
-        </Navbar.Section>
-
-        <Navbar.Section className={classes.footer}>
-          <a
-            href="#"
-            className={classes.link}
-            onClick={(event) => event.preventDefault()}
-          >
-            <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-            <span>Change account</span>
-          </a>
-
-          <a
-            href="#"
-            className={classes.link}
-            onClick={(event) => event.preventDefault()}
-          >
-            <IconLogout className={classes.linkIcon} stroke={1.5} />
-            <span>Logout</span>
-          </a>
         </Navbar.Section>
       </Navbar>
     </div>
