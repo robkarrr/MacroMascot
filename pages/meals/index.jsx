@@ -6,6 +6,7 @@ import {
   Button,
   ActionIcon,
   TextInput,
+  NavLink,
 } from "@mantine/core"
 import useGetMeals from "../../hooks/useGetMeals"
 import { db } from "../../firebase"
@@ -14,7 +15,7 @@ import {
   setDoc,
 } from "firebase/firestore"
 import { useAuthContext } from "../../context/AuthContext"
-import { IconSearch, IconArrowRight } from "@tabler/icons"
+import { IconSearch, IconArrowRight, IconChevronRight } from "@tabler/icons"
 import Link from "next/link"
 
 const useStyles = createStyles((theme, _params, getRef) => {
@@ -141,10 +142,14 @@ function meals() {
             meals.map((item) => (
               <Link
                 href={`/meals/${item.name}`}
-                className={cx(classes.link)}
                 key={item.id}
               >
-                <span>{item.name}</span>
+                <NavLink
+                  label={`${item.name}`}
+                  rightSection={<IconChevronRight size={12} stroke={1.5} />}
+                  className='bg-blue-500 rounded-md text-white hover:bg-blue-600'
+                  mt={'md'}
+                />
               </Link>
             ))}
         </Navbar.Section>

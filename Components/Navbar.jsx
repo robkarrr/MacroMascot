@@ -85,7 +85,7 @@ export default function Navbar() {
             <Link href="/goals" className={classes.link}>
               Goals
             </Link>
-            <Link href="/track" className={classes.link}>
+            <Link href="/days" className={classes.link}>
               Track
             </Link>
           </Group>

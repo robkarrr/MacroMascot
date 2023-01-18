@@ -1,5 +1,5 @@
 import { arrayUnion, doc, updateDoc } from "@firebase/firestore"
-import { ActionIcon, TextInput } from "@mantine/core"
+import { ActionIcon, Container, TextInput } from "@mantine/core"
 import { IconArrowRight, IconSearch } from "@tabler/icons"
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -43,7 +43,7 @@ function meal() {
   }
 
   return (
-    <div>
+    <Container>
       <form onSubmit={handleSubmit}>
         <TextInput
           icon={<IconSearch size={18} stroke={1.5} />}
@@ -96,7 +96,7 @@ function meal() {
           </>
         )}
       </div>
-    </div>
+    </Container>
   )
 }
 
