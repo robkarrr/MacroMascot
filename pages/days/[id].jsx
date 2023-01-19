@@ -29,12 +29,10 @@ const day = () => {
         sugar: s,
       }),
 
-    //   total: {
-    //     calories: increment(c),
-    //     fat: increment(f),
-    //     protein: increment(p),
-    //     sugar: increment(s),
-    //   },    
+      "total.calories": increment(c),
+      "total.protein": increment(p),
+      "total.fat": increment(f),
+      "total.sugar": increment(s),
     })
   }
 
@@ -112,6 +110,9 @@ const day = () => {
               {day.total && (
                 <ul>
                   <li>{day.total.calories}</li>
+                  <li>{day.total.protein}</li>
+                  <li>{day.total.fat}</li>
+                  <li>{day.total.sugar}</li>
                 </ul>
               )}
             </div>
