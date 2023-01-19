@@ -1,5 +1,5 @@
 import { arrayUnion, doc, updateDoc } from "@firebase/firestore"
-import { ActionIcon, Container, TextInput } from "@mantine/core"
+import { ActionIcon, Container, Group, TextInput, Title } from "@mantine/core"
 import { IconArrowRight, IconSearch } from "@tabler/icons"
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -8,6 +8,7 @@ import FoodAPI from "../../services/FoodAPI"
 import useGetMeal from "../../hooks/useGetMeal"
 import { db } from "../../firebase"
 import { useAuthContext } from "../../context/AuthContext"
+import BackButton from '../../components/BackButton'
 
 function meal() {
   const router = useRouter()
@@ -44,27 +45,33 @@ function meal() {
 
   return (
     <Container>
-      <form onSubmit={handleSubmit}>
-        <TextInput
-          icon={<IconSearch size={18} stroke={1.5} />}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          radius="xl"
-          size="md"
-          rightSection={
-            <ActionIcon
-              size={32}
-              radius="xl"
-              variant="filled"
-              className="bg-blue-500"
-            >
-              <IconArrowRight size={18} stroke={1.5} />
-            </ActionIcon>
-          }
-          placeholder="Search questions"
-          rightSectionWidth={42}
-        />
-      </form>
+       <Title mb={"sm"} className="text-blue-500">
+        {meal && meal.name}
+      </Title>
+      <Group>
+        <BackButton/>
+        <form onSubmit={handleSubmit}>
+          <TextInput
+            icon={<IconSearch size={18} stroke={1.5} />}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            radius="xl"
+            size="md"
+            rightSection={
+              <ActionIcon
+                size={32}
+                radius="xl"
+                variant="filled"
+                className="bg-blue-500 hover:bg-blue-600"
+              >
+                <IconArrowRight size={18} stroke={1.5} />
+              </ActionIcon>
+            }
+            placeholder="Search questions"
+            rightSectionWidth={42}
+          />
+        </form>
+      </Group>
       <div>
         {foodData?.map((f) => (
           <FoodArticle

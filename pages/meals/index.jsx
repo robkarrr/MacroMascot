@@ -17,10 +17,11 @@ import Link from "next/link"
 
 function meals() {
   const { docs: meals } = useGetMeals()
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState(null)
   const { currentUser } = useAuthContext()
 
-  const newMeal = async () => {
+  const newMeal = async (e) => {
+    e.preventDefault()
     await setDoc(doc(db, `users/${currentUser.uid}/meals/${query}`), {
       name: query,
     })
@@ -29,38 +30,41 @@ function meals() {
   return (
     <Container size="sm">
       <Title mt={"md"} align="center">
-        See the days you tracked
+        Your Meals
       </Title>
 
       <div>
-        <Group mt={"md"}>
-          <Button
-            onClick={() => newMeal()}
-            className="bg-blue-500 hover:bg-blue-600"
-            type="submit"
-          >
-            New Meal +
-          </Button>
-          <TextInput
-            icon={<IconSearch size={18} stroke={1.5} />}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            radius="xl"
-            size="md"
-            rightSection={
-              <ActionIcon
-                size={32}
-                radius="xl"
-                variant="filled"
-                className="bg-blue-500"
-              >
-                <IconArrowRight size={18} stroke={1.5} />
-              </ActionIcon>
-            }
-            placeholder="Search questions"
-            rightSectionWidth={42}
-          />
-        </Group>
+        <form onSubmit={newMeal}>
+          <Group mt={"md"}>
+            <Button
+              className="bg-blue-500 hover:bg-blue-600"
+              type="submit"
+            >
+              New Meal +
+            </Button>
+
+            <TextInput
+              icon={<IconSearch size={18} stroke={1.5} />}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              radius="xl"
+              size="md"
+              rightSection={
+                <ActionIcon
+                  size={32}
+                  radius="xl"
+                  variant="filled"
+                  className="bg-blue-500"
+                >
+                  <IconArrowRight size={18} stroke={1.5} />
+                </ActionIcon>
+              }
+              placeholder="Meal name..."
+              rightSectionWidth={42}
+              required={true}
+            />
+          </Group>
+        </form>
         <ul>
           {meals &&
             meals.map((meal) => (
