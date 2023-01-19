@@ -13,6 +13,9 @@ import { useState } from "react"
 import FoodArticle from "../Components/FoodArticle"
 import FoodAPI from "../services/FoodAPI"
 import { useAuthContext } from "../context/AuthContext"
+import moment from "moment"
+import { arrayUnion, doc, updateDoc } from "@firebase/firestore"
+import { db } from "../firebase"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -106,6 +109,7 @@ export default function HeroImageBackground() {
   const [query, setQuery] = useState("")
   const [foodData, setFoodData] = useState(null)
   const { currentUser } = useAuthContext()
+  const currentDay = moment().format("DD-MM-YY")
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -121,6 +125,19 @@ export default function HeroImageBackground() {
     setFoodData(null)
   }
 
+  const addProduct = async (name, srv, c, p, f, s) => {
+    const dayRef = doc(db, "users", `${currentUser.uid}`, "days", `${currentDay}`)
+    await updateDoc(dayRef, {
+      products: arrayUnion({
+        name,
+        serving_size: srv,
+        calories: c,
+        protein: p,
+        fat: f,
+        sugar: s,
+      }),
+    })
+  }
 
   return (
     <div height={"100vh"} className={classes.wrapper}>
@@ -129,13 +146,11 @@ export default function HeroImageBackground() {
       <div className={classes.inner}>
         <Title className={classes.title}>
           Welcome Back{" "}
-
-          {currentUser && 
+          {currentUser && (
             <Text component="span" inherit className={classes.highlight}>
-             {currentUser.displayName}
+              {currentUser.displayName}
             </Text>
-          }
-         
+          )}
         </Title>
 
         <Container size={640}>
@@ -166,9 +181,23 @@ export default function HeroImageBackground() {
           </form>
         </div>
 
-        <div>{foodData && foodData.map((f) => (
-          <FoodArticle food={f} clear={clearData}/>
-        ))}
+        <div>
+          {foodData?.map((f) => (
+            <FoodArticle
+              food={f}
+              clear={clearData}
+              add={() =>
+                addProduct(
+                  f.name,
+                  f.serving_size_g,
+                  f.calories,
+                  f.protein_g,
+                  f.fat_total_g,
+                  f.sugar_g
+                )
+              }
+            />
+          ))}
         </div>
       </div>
     </div>
