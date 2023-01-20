@@ -7,12 +7,13 @@ import {
   NavLink,
   Container,
   Title,
+  ScrollArea,
 } from "@mantine/core"
 import useGetMeals from "../../hooks/useGetMeals"
 import { db } from "../../firebase"
-import { doc, setDoc } from "firebase/firestore"
+import { doc, setDoc, deleteDoc } from "firebase/firestore"
 import { useAuthContext } from "../../context/AuthContext"
-import { IconSearch, IconArrowRight, IconChevronRight } from "@tabler/icons"
+import { IconSearch, IconArrowRight, IconChevronRight, IconTrash } from "@tabler/icons"
 import Link from "next/link"
 
 function meals() {
@@ -26,6 +27,10 @@ function meals() {
       name: query,
     })
   }
+
+  const deleteMeal = async (meal) => {
+    await deleteDoc(doc(db, 'users', `${currentUser.uid}`, 'meals', `${meal}`))
+}
 
   return (
     <Container size="sm">
@@ -65,19 +70,23 @@ function meals() {
             />
           </Group>
         </form>
-        <ul>
-          {meals &&
-            meals.map((meal) => (
-              <Link href={`/meals/${meal.name}`}>
-                <NavLink
-                  label={`${meal.name}`}
-                  rightSection={<IconChevronRight size={12} stroke={1.5} />}
-                  className="bg-blue-500 rounded-md text-white hover:bg-blue-600"
-                  mt={"md"}
-                />
-              </Link>
-            ))}
-        </ul>
+        <ScrollArea mt={'md'} type={'auto'} style={{height: '50vh'}}>
+          {meals && (
+            <ul>
+              {meals.map((meal) => (
+                <Group className='align-middle mt-5'>
+                  <Link className='bg-blue-500 p-2 rounded-md text-white w-11/12 hover:bg-blue-600' href={`/meals/${meal.name}`}>
+                    <li >{meal.name}</li>
+                  </Link>
+
+                  <ActionIcon onClick={() => deleteMeal(meal.name)}>
+                    <IconTrash />
+                  </ActionIcon>
+                </Group>
+              ))}
+            </ul>
+          )}
+        </ScrollArea>
       </div>
     </Container>
   )

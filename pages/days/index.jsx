@@ -1,6 +1,14 @@
-import { doc, setDoc } from "@firebase/firestore"
-import { Button, Container, Group, NavLink, Title } from "@mantine/core"
-import { IconChevronRight } from "@tabler/icons"
+import { deleteDoc, doc, setDoc } from "@firebase/firestore"
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Group,
+  NavLink,
+  ScrollArea,
+  Title,
+} from "@mantine/core"
+import { IconChevronRight, IconTrash } from "@tabler/icons"
 import Link from "next/link"
 import { useAuthContext } from "../../context/AuthContext"
 import { db } from "../../firebase"
@@ -18,6 +26,10 @@ const index = () => {
     })
   }
 
+  const deleteDay = async (day) => {
+    await deleteDoc(doc(db, 'users', `${currentUser.uid}`, 'days', `${day}`))
+}
+
   return (
     <Container size="sm">
       <Title mt={"md"} align="center">
@@ -34,19 +46,23 @@ const index = () => {
             New Day +
           </Button>
         </Group>
-        <ul>
-          {days &&
-            days.map((day) => (
-              <Link href={`/days/${day.id}`}>
-                <NavLink
-                  label={`${day.id}`}
-                  rightSection={<IconChevronRight size={12} stroke={1.5} />}
-                  className="bg-blue-500 rounded-md text-white hover:bg-blue-600"
-                  mt={"md"}
-                />
-              </Link>
-            ))}
-        </ul>
+        <ScrollArea mt={'md'} type={'auto'} style={{height: '50vh'}}>
+          {days && (
+            <ul>
+              {days.map((day) => (
+                <Group className='align-middle mt-5'>
+                  <Link className='bg-blue-500 p-2 rounded-md text-white w-11/12 hover:bg-blue-600' href={`/days/${day.id}`}>
+                    <li >{day.id}</li>
+                  </Link>
+
+                  <ActionIcon onClick={() => deleteDay(day.id)}>
+                    <IconTrash />
+                  </ActionIcon>
+                </Group>
+              ))}
+            </ul>
+          )}
+        </ScrollArea>
       </div>
     </Container>
   )
