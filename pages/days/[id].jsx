@@ -4,6 +4,7 @@ import {
   FieldValue,
   increment,
   updateDoc,
+  arrayRemove,
 } from "@firebase/firestore"
 import {
   ActionIcon,
@@ -60,7 +61,17 @@ const day = () => {
     setFoodData(null)
   }
 
-  console.log(day)
+  const deleteProduct = async (prod) => {
+    const dayRef = doc(db, "users", `${currentUser.uid}`, "days", `${id}`)
+    await updateDoc(dayRef, {
+      products: arrayRemove(prod),
+
+      "total.calories": increment(-prod.calories),
+      "total.protein": increment(-prod.protein),
+      "total.fat": increment(-prod.fat),
+      "total.sugar": increment(-prod.sugar),
+    })
+  }
 
   return (
     <Container mt={"md"}>
@@ -68,7 +79,7 @@ const day = () => {
         {day && day.id}
       </Title>
       <Group>
-        <BackButton/>
+        <BackButton />
         <form onSubmit={handleSubmit}>
           <TextInput
             icon={<IconSearch size={18} stroke={1.5} />}
@@ -117,7 +128,15 @@ const day = () => {
               {day.products && (
                 <ul>
                   {day.products.map((p) => (
-                    <li>{p.name}</li>
+                    <>
+                      <li>{p.name}</li>
+                      <Button
+                        className="bg-blue-500"
+                        onClick={() => deleteProduct(p)}
+                      >
+                        X
+                      </Button>
+                    </>
                   ))}
                 </ul>
               )}

@@ -1,5 +1,18 @@
-import { arrayUnion, doc, updateDoc } from "@firebase/firestore"
-import { ActionIcon, Container, Group, TextInput, Title } from "@mantine/core"
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  increment,
+  updateDoc,
+} from "@firebase/firestore"
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Group,
+  TextInput,
+  Title,
+} from "@mantine/core"
 import { IconArrowRight, IconSearch } from "@tabler/icons"
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -8,7 +21,7 @@ import FoodAPI from "../../services/FoodAPI"
 import useGetMeal from "../../hooks/useGetMeal"
 import { db } from "../../firebase"
 import { useAuthContext } from "../../context/AuthContext"
-import BackButton from '../../components/BackButton'
+import BackButton from "../../components/BackButton"
 
 function meal() {
   const router = useRouter()
@@ -29,7 +42,7 @@ function meal() {
     setFoodData(null)
   }
 
-  const AddToMeal = async (name, srv, p, c, f, s) => {
+  const AddToMeal = async (name, srv, c, p, f, s) => {
     const mealRef = doc(db, "users", `${currentUser.uid}`, "meals", `${id}`)
     await updateDoc(mealRef, {
       products: arrayUnion({
@@ -40,16 +53,33 @@ function meal() {
         fat: f,
         sugar: s,
       }),
+
+      "total.calories": increment(c),
+        "total.protein": increment(p),
+        "total.fat": increment(f),
+        "total.sugar": increment(s),
+    })
+  }
+
+  const deleteProduct = async (prod) => {
+    const mealRef = doc(db, "users", `${currentUser.uid}`, "meals", `${id}`)
+    await updateDoc(mealRef, {
+      products: arrayRemove(prod),
+
+      "total.calories": increment(-prod.calories),
+      "total.protein": increment(-prod.protein),
+      "total.fat": increment(-prod.fat),
+      "total.sugar": increment(-prod.sugar),
     })
   }
 
   return (
     <Container>
-       <Title mb={"sm"} className="text-blue-500">
+      <Title mb={"sm"} className="text-blue-500">
         {meal && meal.name}
       </Title>
       <Group>
-        <BackButton/>
+        <BackButton />
         <form onSubmit={handleSubmit}>
           <TextInput
             icon={<IconSearch size={18} stroke={1.5} />}
@@ -97,9 +127,29 @@ function meal() {
             <p>{meal?.name}</p>
             <ul>
               {meal.products?.map((p) => (
-                <li>{p.name}</li>
+                <>
+                  <li>{p.name}</li>
+                  <Button
+                    className="bg-blue-500"
+                    onClick={() => deleteProduct(p)}
+                  >
+                    X
+                  </Button>
+                </>
               ))}
             </ul>
+
+            <div>
+              <p>Total</p>
+              {meal.total && (
+                <ul>
+                  <li> kcal: {meal.total.calories}</li>
+                  <li>p: {meal.total.protein}</li>
+                  <li>f: {meal.total.fat}</li>
+                  <li>s: {meal.total.sugar}</li>
+                </ul>
+              )}
+            </div>
           </>
         )}
       </div>

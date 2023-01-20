@@ -14,7 +14,7 @@ import FoodArticle from "../Components/FoodArticle"
 import FoodAPI from "../services/FoodAPI"
 import { useAuthContext } from "../context/AuthContext"
 import moment from "moment"
-import { arrayUnion, doc, updateDoc } from "@firebase/firestore"
+import { arrayUnion, doc, increment, updateDoc } from "@firebase/firestore"
 import { db } from "../firebase"
 
 const useStyles = createStyles((theme) => ({
@@ -136,6 +136,11 @@ export default function HeroImageBackground() {
         fat: f,
         sugar: s,
       }),
+
+      "total.calories": increment(c),
+      "total.protein": increment(p),
+      "total.fat": increment(f),
+      "total.sugar": increment(s),
     })
   }
 
