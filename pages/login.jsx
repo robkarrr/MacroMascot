@@ -1,7 +1,6 @@
 import {
   TextInput,
   PasswordInput,
-  Checkbox,
   Anchor,
   Paper,
   Title,
@@ -13,15 +12,17 @@ import {
 import Link from "next/link"
 import Router from "next/router"
 import { useRef, useState } from "react"
-import { BarLoader, CircleLoader, ClipLoader, ClockLoader, FadeLoader, RingLoader, ScaleLoader } from "react-spinners"
+import {
+  ScaleLoader,
+} from "react-spinners"
 import { useAuthContext } from "../context/AuthContext"
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 function Login() {
   const emailRef = useRef()
   const passwordRef = useRef()
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const { login } = useAuthContext()
 
   const handleSubmit = async (e) => {
@@ -40,7 +41,7 @@ function Login() {
         draggable: true,
         progress: undefined,
         theme: "light",
-        });
+      })
 
       setLoading(false)
     }
