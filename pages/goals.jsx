@@ -12,6 +12,8 @@ import { doc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase"
 import withAuth from "../middlewares/withAuth"
 import useGetUser from "../hooks/useGetUser"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -57,13 +59,37 @@ const goals = () => {
   const { classes } = useStyles()
   const { currentUser } = useAuthContext()
   const { data: userGoal } = useGetUser(currentUser.uid)
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState("")
 
   const newGoal = async () => {
     const ref = doc(db, `users/${currentUser.uid}`)
-    await updateDoc(ref, {
-      calorie_goal: value,
-    })
+    try {
+      await updateDoc(ref, {
+        calorie_goal: value,
+      })
+
+      toast.success("🎯 Goal saved!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
+    } catch (err) {
+      toast.error(`❌ ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        });
+    }
   }
 
   return (
@@ -82,7 +108,7 @@ const goals = () => {
               placeholder="2200 is an average value"
               defaultValue={userGoal.calorie_goal}
               step={50}
-              min={0}
+              min={1}
               max={5000}
               hideControls
               classNames={{ input: classes.input, label: classes.label }}
@@ -90,7 +116,7 @@ const goals = () => {
             <Slider
               max={5000}
               step={50}
-              min={0}
+              min={1}
               value={value}
               defaultValue={userGoal.calorie_goal}
               onChange={setValue}
@@ -107,6 +133,20 @@ const goals = () => {
           </div>
         </>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* Same as */}
+      <ToastContainer />
     </Container>
   )
 }
