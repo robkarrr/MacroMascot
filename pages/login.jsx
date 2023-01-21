@@ -12,26 +12,36 @@ import {
 } from "@mantine/core"
 import Link from "next/link"
 import Router from "next/router"
-import { useRef, useState } from 'react'
-import { useAuthContext } from '../context/AuthContext'
+import { useRef, useState } from "react"
+import { BarLoader, CircleLoader, ClipLoader, ClockLoader, FadeLoader, RingLoader, ScaleLoader } from "react-spinners"
+import { useAuthContext } from "../context/AuthContext"
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 
 function Login() {
   const emailRef = useRef()
   const passwordRef = useRef()
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const { login } = useAuthContext()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError(null)
-
     try {
       setLoading(true)
       await login(emailRef.current.value, passwordRef.current.value)
       Router.push("/")
     } catch (err) {
-      setError(err.message)
+      toast.error(`${err.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        });
+
       setLoading(false)
     }
   }
@@ -59,7 +69,12 @@ function Login() {
 
       <form onSubmit={handleSubmit}>
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-          <TextInput ref={emailRef} label="Email" placeholder="you@mantine.dev" required />
+          <TextInput
+            ref={emailRef}
+            label="Email"
+            placeholder="you@mantine.dev"
+            required
+          />
           <PasswordInput
             label="Password"
             placeholder="Your password"
@@ -68,7 +83,6 @@ function Login() {
             ref={passwordRef}
           />
           <Group position="apart" mt="lg">
-            <Checkbox label="Remember me" sx={{ lineHeight: 1 }} />
             <Anchor
               onClick={(event) => event.preventDefault()}
               href="#"
@@ -77,19 +91,46 @@ function Login() {
               Forgot password?
             </Anchor>
           </Group>
-          <Button
-            className="bg-blue-500 text-white hover:text-black"
-            variant="default"
-            fullWidth
-            mt="xl"
-            type="submit"
-          >
-            Sign in
-          </Button>
+          <Group position="center">
+            {loading ? (
+              <ScaleLoader
+                color={"#3b82f6"}
+                loading={loading}
+                cssOverride={{
+                  display: "block",
+                  maring: "0 auto",
+                  borderColor: "red",
+                }}
+                size={50}
+                aria-label="Loading Spinner"
+                data-testid="loader"
+              />
+            ) : (
+              <Button
+                className="bg-blue-500 text-white hover:text-black"
+                variant="default"
+                fullWidth
+                mt="xl"
+                type="submit"
+              >
+                Sign in
+              </Button>
+            )}
+          </Group>
         </Paper>
       </form>
-
-      {loading && <p>Loading...</p>}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </Container>
   )
 }
