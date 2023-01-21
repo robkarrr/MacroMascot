@@ -24,6 +24,7 @@ import FoodAPI from "../../services/FoodAPI"
 import { useAuthContext } from "../../context/AuthContext"
 import BackButton from "../../Components/BackButton"
 import withAuth from "../../middlewares/withAuth"
+import useGetUser from "../../hooks/useGetUser"
 
 const day = () => {
   const router = useRouter()
@@ -32,6 +33,7 @@ const day = () => {
   const { docs: day } = useGetDay(id)
   const [query, setQuery] = useState("")
   const [foodData, setFoodData] = useState()
+  const { data: userGoal} = useGetUser(currentUser.uid)
 
   const addProduct = async (name, srv, c, p, f, s) => {
     const dayRef = doc(db, "users", `${currentUser.uid}`, "days", `${id}`)
@@ -111,11 +113,11 @@ const day = () => {
             add={() =>
               addProduct(
                 f.name,
-                f.serving_size_g,
-                f.calories,
-                f.protein_g,
-                f.fat_total_g,
-                f.sugar_g
+                Math.ceil(f.serving_size_g),
+                Math.ceil(f.calories),
+                Math.ceil(f.protein_g),
+                Math.ceil(f.fat_total_g),
+                Math.ceil(f.sugar_g)
               )
             }
           />
@@ -153,6 +155,14 @@ const day = () => {
                 </ul>
               )}
             </div>
+
+            {userGoal.calorie_goal && day.total && (
+              <div>
+                <p>Progress towards your goal</p>
+
+                <p>{day.total.calories} / {userGoal.calorie_goal}</p>
+              </div>
+            )}
           </>
         )}
       </div>

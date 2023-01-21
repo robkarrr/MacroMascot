@@ -195,11 +195,11 @@ function homepage() {
               add={() =>
                 addProduct(
                   f.name,
-                  f.serving_size_g,
-                  f.calories,
-                  f.protein_g,
-                  f.fat_total_g,
-                  f.sugar_g
+                  Math.ceil(f.serving_size_g),
+                  Math.ceil(f.calories),
+                  Math.ceil(f.protein_g),
+                  Math.ceil(f.fat_total_g),
+                  Math.ceil(f.sugar_g)
                 )
               }
             />
