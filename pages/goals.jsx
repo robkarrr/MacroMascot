@@ -1,9 +1,17 @@
 import { useState } from "react"
-import { Button, createStyles, NumberInput, Slider } from "@mantine/core"
+import {
+  Button,
+  Container,
+  createStyles,
+  NumberInput,
+  Slider,
+  Title,
+} from "@mantine/core"
 import { useAuthContext } from "../context/AuthContext"
 import { doc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase"
 import withAuth from "../middlewares/withAuth"
+import useGetUser from "../hooks/useGetUser"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -47,12 +55,11 @@ const useStyles = createStyles((theme) => ({
 
 const goals = () => {
   const { classes } = useStyles()
-  const [value, setValue] = useState(2200)
   const { currentUser } = useAuthContext()
+  const { data: userGoal } = useGetUser(currentUser.uid)
+  const [value, setValue] = useState('')
 
-
-  const newGoal = async (e) => {
-    e.preventDefault()
+  const newGoal = async () => {
     const ref = doc(db, `users/${currentUser.uid}`)
     await updateDoc(ref, {
       calorie_goal: value,
@@ -60,38 +67,47 @@ const goals = () => {
   }
 
   return (
-    <>
-      <form onSubmit={newGoal}>
-        <div className={classes.wrapper}>
-          <NumberInput
-            value={value}
-            onChange={setValue}
-            label="What is your Goal"
-            placeholder="2200 is an average value"
-            step={50}
-            min={0}
-            max={8000}
-            hideControls
-            classNames={{ input: classes.input, label: classes.label }}
-          />
-          <Slider
-            max={8000}
-            step={50}
-            min={0}
-            label={null}
-            value={value}
-            onChange={setValue}
-            size={2}
-            radius={0}
-            className={classes.slider}
-            classNames={{ thumb: classes.thumb, track: classes.track }}
-          />
-        </div>
-        <div>
-          <Button type="submit" className="bg-blue-600">Save!</Button>
-        </div>
-      </form>
-    </>
+    <Container>
+      <Title mt={"md"} align="center">
+        Your Goal
+      </Title>
+      {userGoal.calorie_goal && (
+        <>
+          <div className={classes.wrapper}>
+            <NumberInput
+              mt={"md"}
+              value={value}
+              onChange={setValue}
+              label="What is your Goal"
+              placeholder="2200 is an average value"
+              defaultValue={userGoal.calorie_goal}
+              step={50}
+              min={0}
+              max={5000}
+              hideControls
+              classNames={{ input: classes.input, label: classes.label }}
+            />
+            <Slider
+              max={5000}
+              step={50}
+              min={0}
+              value={value}
+              defaultValue={userGoal.calorie_goal}
+              onChange={setValue}
+              size={2}
+              radius={0}
+              className={classes.slider}
+              classNames={{ thumb: classes.thumb, track: classes.track }}
+            />
+          </div>
+          <div align="center">
+            <Button mt={"md"} onClick={() => newGoal()} className="bg-blue-600">
+              Save!
+            </Button>
+          </div>
+        </>
+      )}
+    </Container>
   )
 }
 
