@@ -3,6 +3,7 @@ import { Button, createStyles, NumberInput, Slider } from "@mantine/core"
 import { useAuthContext } from "../context/AuthContext"
 import { doc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase"
+import withAuth from "../middlewares/withAuth"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -94,4 +95,4 @@ const goals = () => {
   )
 }
 
-export default goals
+export default withAuth(goals)

@@ -15,6 +15,7 @@ import { doc, setDoc, deleteDoc } from "firebase/firestore"
 import { useAuthContext } from "../../context/AuthContext"
 import { IconSearch, IconArrowRight, IconChevronRight, IconTrash } from "@tabler/icons"
 import Link from "next/link"
+import withAuth from "../../middlewares/withAuth"
 
 function meals() {
   const { docs: meals } = useGetMeals()
@@ -92,4 +93,4 @@ function meals() {
   )
 }
 
-export default meals
+export default withAuth(meals)

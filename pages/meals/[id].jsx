@@ -22,6 +22,7 @@ import useGetMeal from "../../hooks/useGetMeal"
 import { db } from "../../firebase"
 import { useAuthContext } from "../../context/AuthContext"
 import BackButton from "../../components/BackButton"
+import withAuth from "../../middlewares/withAuth"
 
 function meal() {
   const router = useRouter()
@@ -157,4 +158,4 @@ function meal() {
   )
 }
 
-export default meal
+export default withAuth(meal)

@@ -14,16 +14,17 @@ import { useAuthContext } from "../../context/AuthContext"
 import { db } from "../../firebase"
 import useGetDays from "../../hooks/useGetDays"
 import moment from "moment"
+import withAuth from "../../middlewares/withAuth"
 
 const index = () => {
-  const { docs: days } = useGetDays()
   const { currentUser } = useAuthContext()
+  const { docs: days } = useGetDays()
   const date = moment().format("DD-MM-YY")
 
   const newDay = async () => {
-    await setDoc(doc(db, `users/${currentUser.uid}/days/${date}`), {
-      id: date,
-    })
+      await setDoc(doc(db, `users/${currentUser.uid}/days/${date}`), {
+        id: date,
+      })
   }
 
   const deleteDay = async (day) => {
@@ -32,9 +33,19 @@ const index = () => {
 
   return (
     <Container size="sm">
+
+      {!currentUser && ( 
+        <Title mt={'mt'} align="center">
+          You need to be logged in to view this
+        </Title>
+      )}
+
+
       <Title mt={"md"} align="center">
         See the days you tracked
       </Title>
+
+
 
       <div>
         <Group mt={"md"}>
@@ -68,4 +79,4 @@ const index = () => {
   )
 }
 
-export default index
+export default withAuth(index)

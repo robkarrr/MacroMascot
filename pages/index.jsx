@@ -16,6 +16,7 @@ import { useAuthContext } from "../context/AuthContext"
 import moment from "moment"
 import { arrayUnion, doc, increment, updateDoc } from "@firebase/firestore"
 import { db } from "../firebase"
+import withAuth from "../middlewares/withAuth"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -104,7 +105,7 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-export default function HeroImageBackground() {
+function homepage() {
   const { classes, cx } = useStyles()
   const [query, setQuery] = useState("")
   const [foodData, setFoodData] = useState(null)
@@ -208,3 +209,5 @@ export default function HeroImageBackground() {
     </div>
   )
 }
+
+export default withAuth(homepage)

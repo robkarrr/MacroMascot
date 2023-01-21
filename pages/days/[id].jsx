@@ -23,6 +23,7 @@ import useGetDay from "../../hooks/useGetDay"
 import FoodAPI from "../../services/FoodAPI"
 import { useAuthContext } from "../../context/AuthContext"
 import BackButton from "../../Components/BackButton"
+import withAuth from "../../middlewares/withAuth"
 
 const day = () => {
   const router = useRouter()
@@ -159,4 +160,4 @@ const day = () => {
   )
 }
 
-export default day
+export default withAuth(day)
