@@ -1,20 +1,26 @@
 import {
   arrayUnion,
   doc,
-  FieldValue,
   increment,
   updateDoc,
   arrayRemove,
 } from "@firebase/firestore"
 import {
+  Accordion,
   ActionIcon,
-  Button,
+  Box,
+  Card,
   Container,
   Group,
+  Paper,
+  Progress,
+  ScrollArea,
+  SimpleGrid,
+  Text,
   TextInput,
   Title,
 } from "@mantine/core"
-import { IconArrowRight, IconChevronLeft, IconSearch } from "@tabler/icons"
+import { IconArrowRight, IconSearch, IconTrash } from "@tabler/icons"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import FoodArticle from "../../Components/FoodArticle"
@@ -25,6 +31,8 @@ import { useAuthContext } from "../../context/AuthContext"
 import BackButton from "../../Components/BackButton"
 import withAuth from "../../middlewares/withAuth"
 import useGetUser from "../../hooks/useGetUser"
+import { AnimatePresence } from "framer-motion"
+import "react-toastify/dist/ReactToastify.css"
 
 const day = () => {
   const router = useRouter()
@@ -33,25 +41,40 @@ const day = () => {
   const { docs: day } = useGetDay(id)
   const [query, setQuery] = useState("")
   const [foodData, setFoodData] = useState()
-  const { data: userGoal} = useGetUser(currentUser.uid)
+  const { data: userGoal } = useGetUser(currentUser.uid)
 
   const addProduct = async (name, srv, c, p, f, s) => {
     const dayRef = doc(db, "users", `${currentUser.uid}`, "days", `${id}`)
-    await updateDoc(dayRef, {
-      products: arrayUnion({
-        name,
-        serving_size: srv,
-        calories: c,
-        protein: p,
-        fat: f,
-        sugar: s,
-      }),
+    try {
+      await updateDoc(dayRef, {
+        products: arrayUnion({
+          name,
+          serving_size: srv,
+          calories: c,
+          protein: p,
+          fat: f,
+          sugar: s,
+        }),
 
-      "total.calories": increment(c),
-      "total.protein": increment(p),
-      "total.fat": increment(f),
-      "total.sugar": increment(s),
-    })
+        "total.calories": increment(c),
+        "total.protein": increment(p),
+        "total.fat": increment(f),
+        "total.sugar": increment(s),
+      })
+
+      setFoodData(null)
+    } catch (err) {
+      toast.error(`❌ ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
+    }
   }
 
   const handleSubmit = async (event) => {
@@ -96,73 +119,197 @@ const day = () => {
                 radius="xl"
                 variant="filled"
                 className="bg-blue-500 hover:bg-blue-600"
+                type="submit"
               >
                 <IconArrowRight size={18} stroke={1.5} />
               </ActionIcon>
             }
-            placeholder="Search questions"
+            placeholder="Add products"
             rightSectionWidth={42}
           />
         </form>
       </Group>
-      <div>
-        {foodData?.map((f) => (
-          <FoodArticle
-            food={f}
-            clear={clearData}
-            add={() =>
-              addProduct(
-                f.name,
-                Math.ceil(f.serving_size_g),
-                Math.ceil(f.calories),
-                Math.ceil(f.protein_g),
-                Math.ceil(f.fat_total_g),
-                Math.ceil(f.sugar_g)
-              )
-            }
-          />
-        ))}
-      </div>
+      <Group mt={"lg"}>
+        <AnimatePresence>
+          {foodData?.map((f) => (
+            <FoodArticle
+              key="food"
+              food={f}
+              clear={clearData}
+              add={() =>
+                addProduct(
+                  f.name,
+                  Math.ceil(f.serving_size_g),
+                  Math.ceil(f.calories),
+                  Math.ceil(f.protein_g),
+                  Math.ceil(f.fat_total_g),
+                  Math.ceil(f.sugar_g)
+                )
+              }
+            />
+          ))}
+        </AnimatePresence>
+      </Group>
       <div>
         {day && (
           <>
-            <div>
-              <p>Producuts</p>
-              {day.products && (
-                <ul>
-                  {day.products.map((p) => (
-                    <>
-                      <li>{p.name}</li>
-                      <Button
-                        className="bg-blue-500"
-                        onClick={() => deleteProduct(p)}
-                      >
-                        X
-                      </Button>
-                    </>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div>
-              <p>Total</p>
-              {day.total && (
-                <ul>
-                  <li>{day.total.calories}</li>
-                  <li>{day.total.protein}</li>
-                  <li>{day.total.fat}</li>
-                  <li>{day.total.sugar}</li>
-                </ul>
-              )}
-            </div>
-
-            {userGoal.calorie_goal && day.total && (
+            <Group position="apart">
               <div>
-                <p>Progress towards your goal</p>
+                <Title mt={"lg"}>Producuts</Title>
+                <ScrollArea type="auto" style={{ height: "30vh" }}>
+                  <Accordion sx={{ minWidth: "400px" }}>
+                    {day.products &&
+                      day.products.map((p) => (
+                        <Accordion.Item value={p.name}>
+                          <Accordion.Control>{p.name}</Accordion.Control>
+                          <Accordion.Panel>
+                            <ul>
+                              <li>
+                                <strong>Serving size: </strong>
+                                {p.serving_size}g
+                              </li>
+                              <li>
+                                <strong>Calories: </strong>
+                                {p.calories}
+                              </li>
+                              <li>
+                                <strong>Protein: </strong>
+                                {p.protein}g
+                              </li>
+                              <li>
+                                <strong>Fat: </strong>
+                                {p.fat}g
+                              </li>
+                              <li>
+                                <strong>Sugar: </strong>
+                                {p.sugar}g
+                              </li>
+                            </ul>
 
-                <p>{day.total.calories} / {userGoal.calorie_goal}</p>
+                            <ActionIcon onClick={() => deleteProduct(p)}>
+                              <IconTrash />
+                            </ActionIcon>
+                          </Accordion.Panel>
+                        </Accordion.Item>
+                      ))}
+                  </Accordion>
+                </ScrollArea>
               </div>
-            )}
+              {userGoal.calorie_goal && day.total && (
+                <Card
+                  withBorder
+                  radius="md"
+                  p="xl"
+                  sx={(theme) => ({
+                    backgroundColor:
+                      theme.colorScheme === "dark"
+                        ? theme.colors.dark[7]
+                        : theme.white,
+
+                    minWidth: "400px",
+                  })}
+                >
+                  <Text
+                    size="xs"
+                    transform="uppercase"
+                    weight={700}
+                    color="dimmed"
+                  >
+                    Daily Goal
+                  </Text>
+                  <Text size="lg" weight={500}>
+                    {day.total.calories} / {userGoal.calorie_goal}
+                  </Text>
+                  <Progress
+                    value={Math.ceil(
+                      (day.total.calories / userGoal.calorie_goal) * 100
+                    )}
+                    mt="md"
+                    size="lg"
+                    radius="xl"
+                  />
+                </Card>
+              )}
+            </Group>
+
+            <Box mt={"lg"}>
+              <Title>Total</Title>
+              {day.total && (
+                <SimpleGrid
+                  cols={4}
+                  breakpoints={[{ maxWidth: "sm", cols: 1 }]}
+                >
+                  <Paper withBorder radius="md" p="xs">
+                    <Group>
+                      <div>
+                        <Text
+                          color="dimmed"
+                          size="xs"
+                          transform="uppercase"
+                          weight={700}
+                        >
+                          Calories
+                        </Text>
+                        <Text weight={700} size="xl">
+                          {day.total.calories}
+                        </Text>
+                      </div>
+                    </Group>
+                  </Paper>
+                  <Paper withBorder radius="md" p="xs">
+                    <Group>
+                      <div>
+                        <Text
+                          color="dimmed"
+                          size="xs"
+                          transform="uppercase"
+                          weight={700}
+                        >
+                          Protein
+                        </Text>
+                        <Text weight={700} size="xl">
+                          {day.total.protein}g
+                        </Text>
+                      </div>
+                    </Group>
+                  </Paper>
+                  <Paper withBorder radius="md" p="xs">
+                    <Group>
+                      <div>
+                        <Text
+                          color="dimmed"
+                          size="xs"
+                          transform="uppercase"
+                          weight={700}
+                        >
+                          Fat
+                        </Text>
+                        <Text weight={700} size="xl">
+                          {day.total.fat}g
+                        </Text>
+                      </div>
+                    </Group>
+                  </Paper>
+                  <Paper withBorder radius="md" p="xs">
+                    <Group>
+                      <div>
+                        <Text
+                          color="dimmed"
+                          size="xs"
+                          transform="uppercase"
+                          weight={700}
+                        >
+                          Sugar
+                        </Text>
+                        <Text weight={700} size="xl">
+                          {day.total.sugar}g
+                        </Text>
+                      </div>
+                    </Group>
+                  </Paper>
+                </SimpleGrid>
+              )}
+            </Box>
           </>
         )}
       </div>
