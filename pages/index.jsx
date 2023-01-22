@@ -203,7 +203,10 @@ function HomePage() {
 
         <Container size={640}>
           <Text size="lg" className={classes.description}>
-            Start tracking macros fast and easy!
+            Track your macros fast and easy!
+          </Text>
+          <Text size="lg" className={classes.description}>
+            Start by adding a product to your day
           </Text>
         </Container>
 
