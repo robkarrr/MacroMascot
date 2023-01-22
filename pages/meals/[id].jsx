@@ -30,6 +30,8 @@ import BackButton from "../../components/BackButton"
 import withAuth from "../../middlewares/withAuth"
 import { AnimatePresence } from "framer-motion"
 import { ToastContainer, toast } from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function meal() {
   const router = useRouter()

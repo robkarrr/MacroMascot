@@ -64,7 +64,7 @@ const goals = () => {
   const { classes } = useStyles()
   const { currentUser } = useAuthContext()
   const { data: userGoal } = useGetUser(currentUser.uid)
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState(userGoal.calorie_goal)
   const currentDate = moment().format("DD-MM-YY")
   const { docs: day } = useGetDay(currentDate)
 
