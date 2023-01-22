@@ -6,14 +6,19 @@ import {
   updateDoc,
 } from "@firebase/firestore"
 import {
+  Accordion,
   ActionIcon,
-  Button,
+  Box,
   Container,
   Group,
+  Paper,
+  ScrollArea,
+  SimpleGrid,
+  Text,
   TextInput,
   Title,
 } from "@mantine/core"
-import { IconArrowRight, IconSearch } from "@tabler/icons"
+import { IconArrowRight, IconSearch, IconTrash } from "@tabler/icons"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import FoodArticle from "../../Components/FoodArticle"
@@ -23,6 +28,8 @@ import { db } from "../../firebase"
 import { useAuthContext } from "../../context/AuthContext"
 import BackButton from "../../components/BackButton"
 import withAuth from "../../middlewares/withAuth"
+import { AnimatePresence } from "framer-motion"
+import { ToastContainer, toast } from "react-toastify"
 
 function meal() {
   const router = useRouter()
@@ -43,35 +50,65 @@ function meal() {
     setFoodData(null)
   }
 
-  const AddToMeal = async (name, srv, c, p, f, s) => {
+  const addProduct = async (name, srv, c, p, f, s) => {
     const mealRef = doc(db, "users", `${currentUser.uid}`, "meals", `${id}`)
-    await updateDoc(mealRef, {
-      products: arrayUnion({
-        name,
-        serving_size: srv,
-        calories: c,
-        protein: p,
-        fat: f,
-        sugar: s,
-      }),
 
-      "total.calories": increment(c),
+    try {
+      await updateDoc(mealRef, {
+        products: arrayUnion({
+          name,
+          serving_size: srv,
+          calories: c,
+          protein: p,
+          fat: f,
+          sugar: s,
+        }),
+
+        "total.calories": increment(c),
         "total.protein": increment(p),
         "total.fat": increment(f),
         "total.sugar": increment(s),
-    })
+      })
+
+      setFoodData(null)
+    } catch (err) {
+      toast.error(`❌ ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
+    }
   }
 
   const deleteProduct = async (prod) => {
     const mealRef = doc(db, "users", `${currentUser.uid}`, "meals", `${id}`)
-    await updateDoc(mealRef, {
-      products: arrayRemove(prod),
 
-      "total.calories": increment(-prod.calories),
-      "total.protein": increment(-prod.protein),
-      "total.fat": increment(-prod.fat),
-      "total.sugar": increment(-prod.sugar),
-    })
+    try {
+      await updateDoc(mealRef, {
+        products: arrayRemove(prod),
+
+        "total.calories": increment(-prod.calories),
+        "total.protein": increment(-prod.protein),
+        "total.fat": increment(-prod.fat),
+        "total.sugar": increment(-prod.sugar),
+      })
+    } catch (err) {
+      toast.error(`❌ ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
+    }
   }
 
   return (
@@ -103,57 +140,171 @@ function meal() {
           />
         </form>
       </Group>
-      <div>
-        {foodData?.map((f) => (
-          <FoodArticle
-            food={f}
-            clear={clearData}
-            add={() =>
-              AddToMeal(
-                f.name,
-                Math.ceil(f.serving_size_g),
-                Math.ceil(f.calories),
-                Math.ceil(f.protein_g),
-                Math.ceil(f.fat_total_g),
-                Math.ceil(f.sugar_g)
-              )
-            }
-          />
-        ))}
-      </div>
+      <Group mt={"lg"}>
+        <AnimatePresence>
+          {foodData?.map((f) => (
+            <FoodArticle
+              key="food"
+              food={f}
+              clear={clearData}
+              add={() =>
+                addProduct(
+                  f.name,
+                  Math.ceil(f.serving_size_g),
+                  Math.ceil(f.calories),
+                  Math.ceil(f.protein_g),
+                  Math.ceil(f.fat_total_g),
+                  Math.ceil(f.sugar_g)
+                )
+              }
+            />
+          ))}
+        </AnimatePresence>
+      </Group>
 
       <div>
         {meal && (
           <>
-            <p>{meal?.name}</p>
-            <ul>
-              {meal.products?.map((p) => (
-                <>
-                  <li>{p.name}</li>
-                  <Button
-                    className="bg-blue-500"
-                    onClick={() => deleteProduct(p)}
-                  >
-                    X
-                  </Button>
-                </>
-              ))}
-            </ul>
+            <Group position="apart">
+              <div>
+                <Title mt={"md"}>Producuts</Title>
+                <ScrollArea type="auto" style={{ height: "40vh" }}>
+                  <Accordion sx={{ minWidth: "400px" }}>
+                    {meal.products &&
+                      meal.products.map((m) => (
+                        <Accordion.Item value={m.name}>
+                          <Accordion.Control>{m.name}</Accordion.Control>
+                          <Accordion.Panel>
+                            <ul>
+                              <li>
+                                <strong>Serving size: </strong>
+                                {m.serving_size}g
+                              </li>
+                              <li>
+                                <strong>Calories: </strong>
+                                {m.calories}
+                              </li>
+                              <li>
+                                <strong>Protein: </strong>
+                                {m.mrotein}g
+                              </li>
+                              <li>
+                                <strong>Fat: </strong>
+                                {m.fat}g
+                              </li>
+                              <li>
+                                <strong>Sugar: </strong>
+                                {m.sugar}g
+                              </li>
+                            </ul>
 
-            <div>
-              <p>Total</p>
-              {meal.total && (
-                <ul>
-                  <li> kcal: {meal.total.calories}</li>
-                  <li>p: {meal.total.protein}</li>
-                  <li>f: {meal.total.fat}</li>
-                  <li>s: {meal.total.sugar}</li>
-                </ul>
-              )}
-            </div>
+                            <ActionIcon onClick={() => deleteProduct(m)}>
+                              <IconTrash />
+                            </ActionIcon>
+                          </Accordion.Panel>
+                        </Accordion.Item>
+                      ))}
+                  </Accordion>
+                </ScrollArea>
+              </div>
+              <Box mt={"lg"}>
+                <Title>Total</Title>
+                {meal.total && (
+                  <SimpleGrid
+                    sx={{ minWidth: "400px" }}
+                    cols={1}
+                    breakpoints={[{ maxWidth: "sm", cols: 1 }]}
+                  >
+                    <Paper withBorder radius="md" p="xs">
+                      <Group>
+                        <div>
+                          <Text
+                            color="dimmed"
+                            size="xs"
+                            transform="uppercase"
+                            weight={700}
+                          >
+                            Calories
+                          </Text>
+                          <Text weight={700} size="xl">
+                            {meal.total.calories}
+                          </Text>
+                        </div>
+                      </Group>
+                    </Paper>
+                    <Paper withBorder radius="md" p="xs">
+                      <Group>
+                        <div>
+                          <Text
+                            color="dimmed"
+                            size="xs"
+                            transform="uppercase"
+                            weight={700}
+                          >
+                            Protein
+                          </Text>
+                          <Text weight={700} size="xl">
+                            {meal.total.protein}g
+                          </Text>
+                        </div>
+                      </Group>
+                    </Paper>
+                    <Paper withBorder radius="md" p="xs">
+                      <Group>
+                        <div>
+                          <Text
+                            color="dimmed"
+                            size="xs"
+                            transform="uppercase"
+                            weight={700}
+                          >
+                            Fat
+                          </Text>
+                          <Text weight={700} size="xl">
+                            {meal.total.fat}g
+                          </Text>
+                        </div>
+                      </Group>
+                    </Paper>
+                    <Paper withBorder radius="md" p="xs">
+                      <Group>
+                        <div>
+                          <Text
+                            color="dimmed"
+                            size="xs"
+                            transform="uppercase"
+                            weight={700}
+                          >
+                            Sugar
+                          </Text>
+                          <Text weight={700} size="xl">
+                            {meal.total.sugar}g
+                          </Text>
+                        </div>
+                      </Group>
+                    </Paper>
+                  </SimpleGrid>
+                )}
+              </Box>
+            </Group>
           </>
         )}
       </div>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* Same as */}
+      <ToastContainer />
     </Container>
   )
 }

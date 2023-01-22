@@ -33,6 +33,7 @@ import withAuth from "../../middlewares/withAuth"
 import useGetUser from "../../hooks/useGetUser"
 import { AnimatePresence } from "framer-motion"
 import "react-toastify/dist/ReactToastify.css"
+import { ToastContainer, toast } from "react-toastify"
 
 const day = () => {
   const router = useRouter()
@@ -313,6 +314,20 @@ const day = () => {
           </>
         )}
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* Same as */}
+      <ToastContainer />
     </Container>
   )
 }
