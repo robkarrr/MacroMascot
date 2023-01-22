@@ -130,30 +130,26 @@ export default function Navbar() {
             color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
           />
 
-          <a href="#" className={classes.link}>
+          <Link href="/" className={classes.link}>
             Home
-          </a>
-          <UnstyledButton className={classes.link}>
-            <Center inline>
-              <Box component="span" mr={5}>
-                Features
-              </Box>
-            </Center>
-          </UnstyledButton>
-          <a href="#" className={classes.link}>
-            Learn
-          </a>
-          <a href="#" className={classes.link}>
-            Academy
-          </a>
+          </Link>
+          <Link href="/meals" className={classes.link}>
+            Meals
+          </Link>
+          <Link href="/goals" className={classes.link}>
+            Goals
+          </Link>
+          <Link href="/days" className={classes.link}>
+            Track
+          </Link>
 
           <Divider
             my="sm"
             color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
           />
 
-          <Group position="center" grow pb="xl" px="md">
-          {currentUser ? (
+          <Group position="apart" grow pb="xl" px="md">
+            {currentUser ? (
               <Button onClick={() => logout()} variant="default">
                 Log Out
               </Button>
