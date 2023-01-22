@@ -202,7 +202,9 @@ function homepage() {
         </Title>
 
         <Container size={640}>
-          <Text size="lg" className={classes.description}></Text>
+          <Text size="lg" className={classes.description}>
+            Start tracking macros fast and easy!
+          </Text>
         </Container>
 
         <div className={classes.controls}>
@@ -223,7 +225,7 @@ function homepage() {
                   <IconArrowRight size={18} stroke={1.5} />
                 </ActionIcon>
               }
-              placeholder="Search questions"
+              placeholder="Chicken..."
               rightSectionWidth={42}
             />
           </form>

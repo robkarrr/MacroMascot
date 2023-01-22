@@ -1,10 +1,13 @@
 import { useState } from "react"
 import {
   Button,
+  Card,
   Container,
   createStyles,
   NumberInput,
+  Progress,
   Slider,
+  Text,
   Title,
 } from "@mantine/core"
 import { useAuthContext } from "../context/AuthContext"
@@ -14,6 +17,8 @@ import withAuth from "../middlewares/withAuth"
 import useGetUser from "../hooks/useGetUser"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useGetDay from "../hooks/useGetDay"
+import moment from "moment"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -60,6 +65,9 @@ const goals = () => {
   const { currentUser } = useAuthContext()
   const { data: userGoal } = useGetUser(currentUser.uid)
   const [value, setValue] = useState("")
+  const currentDate = moment().format("DD-MM-YY")
+  const { docs: day } = useGetDay(currentDate)
+
 
   const newGoal = async () => {
     const ref = doc(db, `users/${currentUser.uid}`)
@@ -131,6 +139,41 @@ const goals = () => {
               Save!
             </Button>
           </div>
+
+          {userGoal.calorie_goal && day.total && (
+                <Card
+                  mt={'lg'}
+                  withBorder
+                  radius="md"
+                  p="xl"
+                  sx={(theme) => ({
+                    backgroundColor:
+                      theme.colorScheme === "dark"
+                        ? theme.colors.dark[7]
+                        : theme.white,
+                  })}
+                >
+                  <Text
+                    size="xs"
+                    transform="uppercase"
+                    weight={700}
+                    color="dimmed"
+                  >
+                    Daily Goal
+                  </Text>
+                  <Text size="lg" weight={500}>
+                    {day.total.calories} / {userGoal.calorie_goal}
+                  </Text>
+                  <Progress
+                    value={Math.ceil(
+                      (day.total.calories / userGoal.calorie_goal) * 100
+                    )}
+                    mt="md"
+                    size="lg"
+                    radius="xl"
+                  />
+                </Card>
+              )}
         </>
       )}
       <ToastContainer
