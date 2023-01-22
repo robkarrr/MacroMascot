@@ -26,7 +26,7 @@ import FoodAPI from "../../services/FoodAPI"
 import useGetMeal from "../../hooks/useGetMeal"
 import { db } from "../../firebase"
 import { useAuthContext } from "../../context/AuthContext"
-import BackButton from "../../components/BackButton"
+import BackButton from '../../Components/BackButton'
 import withAuth from "../../middlewares/withAuth"
 import { AnimatePresence } from "framer-motion"
 import { ToastContainer, toast } from "react-toastify"
