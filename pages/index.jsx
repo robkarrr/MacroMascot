@@ -222,7 +222,7 @@ function HomePage() {
             Track your macros fast and easy!
           </Text>
           <Text size="lg" className={classes.description}>
-            Start by adding a product to your day
+            Start by heading over to TRACK and create a new day
           </Text>
         </Container>
 
