@@ -15,7 +15,7 @@ import FoodArticle from "../Components/FoodArticle"
 import FoodAPI from "../services/FoodAPI"
 import { useAuthContext } from "../context/AuthContext"
 import moment from "moment"
-import { arrayUnion, doc, increment, updateDoc } from "@firebase/firestore"
+import { arrayUnion, doc, getDoc, increment, updateDoc } from "@firebase/firestore"
 import { db } from "../firebase"
 import withAuth from "../middlewares/withAuth"
 import { AnimatePresence } from "framer-motion"
@@ -144,37 +144,53 @@ function HomePage() {
       `${currentDay}`
     )
 
-    try {
-      await updateDoc(dayRef, {
-        products: arrayUnion({
-          name,
-          serving_size: srv,
-          calories: c,
-          protein: p,
-          fat: f,
-          sugar: s,
-        }),
+    const dayCheck =  await getDoc(dayRef)
 
-        "total.calories": increment(c),
-        "total.protein": increment(p),
-        "total.fat": increment(f),
-        "total.sugar": increment(s),
-      })
-
-      setFoodData(null)
-
-      toast.success("🥘 Product added!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      })
-    } catch (err) {
-      toast.error(`❌ ${err.message}`, {
+    if(dayCheck.exists()) {
+      try {
+        await updateDoc(dayRef, {
+          products: arrayUnion({
+            name,
+            serving_size: srv,
+            calories: c,
+            protein: p,
+            fat: f,
+            sugar: s,
+          }),
+  
+          "total.calories": increment(c),
+          "total.protein": increment(p),
+          "total.fat": increment(f),
+          "total.sugar": increment(s),
+        })
+  
+        setFoodData(null)
+  
+        toast.success("🥘 Product added!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
+      } catch (err) {
+        toast.error(`❌ ${err.message}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
+      }
+    }
+    else{
+      return  toast.error(`❌ Need to create a day to track`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
