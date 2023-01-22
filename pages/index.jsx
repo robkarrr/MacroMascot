@@ -7,6 +7,7 @@ import {
   ActionIcon,
   Overlay,
   createStyles,
+  Group,
 } from "@mantine/core"
 import { IconSearch, IconArrowRight, IconArrowLeft } from "@tabler/icons"
 import { useState } from "react"
@@ -17,12 +18,17 @@ import moment from "moment"
 import { arrayUnion, doc, increment, updateDoc } from "@firebase/firestore"
 import { db } from "../firebase"
 import withAuth from "../middlewares/withAuth"
+import { AnimatePresence, motion } from "framer-motion"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
     position: "relative",
     height: "100vh",
     paddingTop: 180,
+    backgroundImage:
+      "url(https://img.freepik.com/free-photo/top-view-table-full-delicious-food-composition_23-2149141353.jpg?w=1480&t=st=1674345777~exp=1674346377~hmac=c3da9a8bba3708794721f22db7d9162fa3f70a9ea1cbb48b00ab546b246834a2)",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
     paddingBottom: 130,
 
     "@media (max-width: 520px)": {
@@ -127,7 +133,13 @@ function homepage() {
   }
 
   const addProduct = async (name, srv, c, p, f, s) => {
-    const dayRef = doc(db, "users", `${currentUser.uid}`, "days", `${currentDay}`)
+    const dayRef = doc(
+      db,
+      "users",
+      `${currentUser.uid}`,
+      "days",
+      `${currentDay}`
+    )
     await updateDoc(dayRef, {
       products: arrayUnion({
         name,
@@ -144,6 +156,8 @@ function homepage() {
       "total.sugar": increment(s),
     })
   }
+
+  console.log(foodData)
 
   return (
     <div height={"100vh"} className={classes.wrapper}>
@@ -187,24 +201,28 @@ function homepage() {
           </form>
         </div>
 
-        <div>
-          {foodData?.map((f) => (
-            <FoodArticle
-              food={f}
-              clear={clearData}
-              add={() =>
-                addProduct(
-                  f.name,
-                  Math.ceil(f.serving_size_g),
-                  Math.ceil(f.calories),
-                  Math.ceil(f.protein_g),
-                  Math.ceil(f.fat_total_g),
-                  Math.ceil(f.sugar_g)
-                )
-              }
-            />
-          ))}
-        </div>
+        <Group position="center" mt={"xl"}>
+          <AnimatePresence>
+            {foodData &&
+              foodData.map((f) => (
+                <FoodArticle
+                  food={f}
+                  key="foodarticle"
+                  clear={clearData}
+                  add={() =>
+                    addProduct(
+                      f.name,
+                      Math.ceil(f.serving_size_g),
+                      Math.ceil(f.calories),
+                      Math.ceil(f.protein_g),
+                      Math.ceil(f.fat_total_g),
+                      Math.ceil(f.sugar_g)
+                    )
+                  }
+                />
+              ))}
+          </AnimatePresence>
+        </Group>
       </div>
     </div>
   )
