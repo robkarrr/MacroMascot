@@ -161,7 +161,7 @@ const Day = () => {
                   <Accordion sx={{ minWidth: "400px" }}>
                     {day.products &&
                       day.products.map((p) => (
-                        <Accordion.Item value={p.name}>
+                        <Accordion.Item key={p.name} value={p.name}>
                           <Accordion.Control>{p.name}</Accordion.Control>
                           <Accordion.Panel>
                             <ul>

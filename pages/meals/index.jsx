@@ -96,7 +96,7 @@ function Meals() {
           {meals && (
             <ul>
               {meals.map((meal) => (
-                <Group className="align-middle mt-5">
+                <Group key={meal.name} className="align-middle mt-5">
                   <Link
                     className="bg-blue-500 p-2 rounded-md text-white w-11/12 hover:bg-blue-600"
                     href={`/meals/${meal.name}`}

@@ -174,7 +174,7 @@ function Meal() {
                   <Accordion sx={{ minWidth: "400px" }}>
                     {meal.products &&
                       meal.products.map((m) => (
-                        <Accordion.Item value={m.name}>
+                        <Accordion.Item key={m.name} value={m.name}>
                           <Accordion.Control>{m.name}</Accordion.Control>
                           <Accordion.Panel>
                             <ul>

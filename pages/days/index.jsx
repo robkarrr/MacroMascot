@@ -75,12 +75,12 @@ const Days = () => {
           {days && (
             <ul>
               {days.map((day) => (
-                <Group className="align-middle mt-5">
+                <Group key={day.id} className="align-middle mt-5">
                   <Link
                     className="bg-blue-500 p-2 rounded-md text-white w-11/12 hover:bg-blue-600"
                     href={`/days/${day.id}`}
                   >
-                    <li>{day.id}</li>
+                    <li >{day.id}</li>
                   </Link>
 
                   <ActionIcon onClick={() => deleteDay(day.id)}>
