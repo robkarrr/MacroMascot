@@ -18,7 +18,10 @@ import moment from "moment"
 import { arrayUnion, doc, increment, updateDoc } from "@firebase/firestore"
 import { db } from "../firebase"
 import withAuth from "../middlewares/withAuth"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { toast, ToastContainer } from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -140,24 +143,49 @@ function homepage() {
       "days",
       `${currentDay}`
     )
-    await updateDoc(dayRef, {
-      products: arrayUnion({
-        name,
-        serving_size: srv,
-        calories: c,
-        protein: p,
-        fat: f,
-        sugar: s,
-      }),
 
-      "total.calories": increment(c),
-      "total.protein": increment(p),
-      "total.fat": increment(f),
-      "total.sugar": increment(s),
-    })
+    try {
+      await updateDoc(dayRef, {
+        products: arrayUnion({
+          name,
+          serving_size: srv,
+          calories: c,
+          protein: p,
+          fat: f,
+          sugar: s,
+        }),
+
+        "total.calories": increment(c),
+        "total.protein": increment(p),
+        "total.fat": increment(f),
+        "total.sugar": increment(s),
+      })
+
+      setFoodData(null)
+
+      toast.success("🥘 Product added!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
+    } catch (err) {
+      toast.error(`❌ ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      })
+    }
   }
-
-  console.log(foodData)
 
   return (
     <div height={"100vh"} className={classes.wrapper}>
@@ -224,6 +252,20 @@ function homepage() {
           </AnimatePresence>
         </Group>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* Same as */}
+      <ToastContainer />
     </div>
   )
 }
