@@ -35,7 +35,7 @@ import { AnimatePresence } from "framer-motion"
 import "react-toastify/dist/ReactToastify.css"
 import { ToastContainer, toast } from "react-toastify"
 
-const day = () => {
+const Day = () => {
   const router = useRouter()
   const { id } = router.query
   const { currentUser } = useAuthContext()
@@ -332,4 +332,4 @@ const day = () => {
   )
 }
 
-export default withAuth(day)
+export default withAuth(Day)

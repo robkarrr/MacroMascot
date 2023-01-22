@@ -60,7 +60,7 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-const goals = () => {
+const Goals = () => {
   const { classes } = useStyles()
   const { currentUser } = useAuthContext()
   const { data: userGoal } = useGetUser(currentUser.uid)
@@ -194,4 +194,4 @@ const goals = () => {
   )
 }
 
-export default withAuth(goals)
+export default withAuth(Goals)

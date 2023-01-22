@@ -114,7 +114,7 @@ const useStyles = createStyles((theme) => ({
   },
 }))
 
-function homepage() {
+function HomePage() {
   const { classes, cx } = useStyles()
   const [query, setQuery] = useState("")
   const [foodData, setFoodData] = useState(null)
@@ -272,4 +272,4 @@ function homepage() {
   )
 }
 
-export default withAuth(homepage)
+export default withAuth(HomePage)

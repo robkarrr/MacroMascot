@@ -33,7 +33,7 @@ import { ToastContainer, toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
 
 
-function meal() {
+function Meal() {
   const router = useRouter()
   const { id } = router.query
   const [query, setQuery] = useState("")
@@ -311,4 +311,4 @@ function meal() {
   )
 }
 
-export default withAuth(meal)
+export default withAuth(Meal)

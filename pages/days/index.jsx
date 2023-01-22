@@ -17,7 +17,7 @@ import withAuth from "../../middlewares/withAuth"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
-const index = () => {
+const Days = () => {
   const { currentUser } = useAuthContext()
   const { docs: days } = useGetDays()
   const date = moment().format("DD-MM-YY")
@@ -110,4 +110,4 @@ const index = () => {
   )
 }
 
-export default withAuth(index)
+export default withAuth(Days)

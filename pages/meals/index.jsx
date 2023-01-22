@@ -24,7 +24,7 @@ import withAuth from "../../middlewares/withAuth"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
-function meals() {
+function Meals() {
   const { docs: meals } = useGetMeals()
   const [query, setQuery] = useState("")
   const { currentUser } = useAuthContext()
@@ -132,4 +132,4 @@ function meals() {
   )
 }
 
-export default withAuth(meals)
+export default withAuth(Meals)
