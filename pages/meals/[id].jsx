@@ -2,6 +2,7 @@ import {
   arrayRemove,
   arrayUnion,
   doc,
+  getDoc,
   increment,
   updateDoc,
 } from "@firebase/firestore"
@@ -65,14 +66,17 @@ function Meal() {
           fat: f,
           sugar: s,
         }),
-
-        "total.calories": increment(c),
-        "total.protein": increment(p),
-        "total.fat": increment(f),
-        "total.sugar": increment(s),
       })
 
       setFoodData(null)
+      const docSnap = await getDoc(mealRef)
+      const products = docSnap.data().products
+      await updateDoc(mealRef, {
+        "total.calories": products.reduce((total, product) => total + product.calories, 0),
+        "total.protein": products.reduce((total, product) => total + product.protein, 0),
+        "total.fat": products.reduce((total, product) => total + product.fat, 0),
+        "total.sugar": products.reduce((total, product) => total + product.sugar, 0),
+      })
     } catch (err) {
       toast.error(`❌ ${err.message}`, {
         position: "top-right",
@@ -93,11 +97,15 @@ function Meal() {
     try {
       await updateDoc(mealRef, {
         products: arrayRemove(prod),
+      })
 
-        "total.calories": increment(-prod.calories),
-        "total.protein": increment(-prod.protein),
-        "total.fat": increment(-prod.fat),
-        "total.sugar": increment(-prod.sugar),
+      const docSnap = await getDoc(mealRef)
+      const products = docSnap.data().products
+      await updateDoc(mealRef, {
+        "total.calories": products.reduce((total, product) => total + product.calories, 0),
+        "total.protein": products.reduce((total, product) => total + product.protein, 0),
+        "total.fat": products.reduce((total, product) => total + product.fat, 0),
+        "total.sugar": products.reduce((total, product) => total + product.sugar, 0),
       })
     } catch (err) {
       toast.error(`❌ ${err.message}`, {
@@ -169,7 +177,7 @@ function Meal() {
           <>
             <Group position="apart">
               <div>
-                <Title mt={"md"}>Producuts</Title>
+                <Title mt={"md"}>Products</Title>
                 <ScrollArea type="auto" style={{ height: "40vh" }}>
                   <Accordion sx={{ minWidth: "400px" }}>
                     {meal.products &&
