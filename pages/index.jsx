@@ -15,13 +15,19 @@ import FoodArticle from "../Components/FoodArticle"
 import FoodAPI from "../services/FoodAPI"
 import { useAuthContext } from "../context/AuthContext"
 import moment from "moment"
-import { arrayUnion, doc, getDoc, increment, updateDoc } from "@firebase/firestore"
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  increment,
+  setDoc,
+  updateDoc,
+} from "@firebase/firestore"
 import { db } from "../firebase"
 import withAuth from "../middlewares/withAuth"
 import { AnimatePresence } from "framer-motion"
 import { toast, ToastContainer } from "react-toastify"
-import 'react-toastify/dist/ReactToastify.css';
-
+import "react-toastify/dist/ReactToastify.css"
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -144,9 +150,9 @@ function HomePage() {
       `${currentDay}`
     )
 
-    const dayCheck =  await getDoc(dayRef)
+    const dayCheck = await getDoc(dayRef)
 
-    if(dayCheck.exists()) {
+    if (dayCheck.exists()) {
       try {
         await updateDoc(dayRef, {
           products: arrayUnion({
@@ -157,15 +163,30 @@ function HomePage() {
             fat: f,
             sugar: s,
           }),
-  
-          "total.calories": increment(c),
-          "total.protein": increment(p),
-          "total.fat": increment(f),
-          "total.sugar": increment(s),
         })
-  
+
         setFoodData(null)
-  
+        const docSnap = await getDoc(dayRef)
+        const products = docSnap.data().products
+        await updateDoc(dayRef, {
+          "total.calories": products.reduce(
+            (total, product) => total + product.calories,
+            0
+          ),
+          "total.protein": products.reduce(
+            (total, product) => total + product.protein,
+            0
+          ),
+          "total.fat": products.reduce(
+            (total, product) => total + product.fat,
+            0
+          ),
+          "total.sugar": products.reduce(
+            (total, product) => total + product.sugar,
+            0
+          ),
+        })
+
         toast.success("🥘 Product added!", {
           position: "top-right",
           autoClose: 5000,
@@ -188,18 +209,67 @@ function HomePage() {
           theme: "light",
         })
       }
-    }
-    else{
-      return  toast.error(`❌ Need to create a day to track`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      })
+    } else {
+      try {
+        await setDoc(doc(db, `users/${currentUser.uid}/days/${currentDay}`), {
+          id: currentDay,
+        })
+
+        await updateDoc(dayRef, {
+          products: arrayUnion({
+            name,
+            serving_size: srv,
+            calories: c,
+            protein: p,
+            fat: f,
+            sugar: s,
+          }),
+        })
+
+        setFoodData(null)
+        const docSnap = await getDoc(dayRef)
+        const products = docSnap.data().products
+        await updateDoc(dayRef, {
+          "total.calories": products.reduce(
+            (total, product) => total + product.calories,
+            0
+          ),
+          "total.protein": products.reduce(
+            (total, product) => total + product.protein,
+            0
+          ),
+          "total.fat": products.reduce(
+            (total, product) => total + product.fat,
+            0
+          ),
+          "total.sugar": products.reduce(
+            (total, product) => total + product.sugar,
+            0
+          ),
+        })
+
+        toast.success("🥘 Product added!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
+      } catch (err) {
+        toast.error(`❌ ${err.message}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
+      }
     }
   }
 
