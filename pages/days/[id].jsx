@@ -1,9 +1,9 @@
 import {
   arrayUnion,
   doc,
-  increment,
   updateDoc,
   arrayRemove,
+  getDoc,
 } from "@firebase/firestore"
 import {
   Accordion,
@@ -22,7 +22,7 @@ import {
 } from "@mantine/core"
 import { IconArrowRight, IconSearch, IconTrash } from "@tabler/icons"
 import { useRouter } from "next/router"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import FoodArticle from "../../Components/FoodArticle"
 import { db } from "../../firebase"
 import useGetDay from "../../hooks/useGetDay"
@@ -56,14 +56,17 @@ const Day = () => {
           fat: f,
           sugar: s,
         }),
-
-        "total.calories": increment(c),
-        "total.protein": increment(p),
-        "total.fat": increment(f),
-        "total.sugar": increment(s),
-      })
+      }),
 
       setFoodData(null)
+      const docSnap = await getDoc(dayRef)
+      const products = docSnap.data().products
+      await updateDoc(dayRef, {
+        "total.calories": products.reduce((total, product) => total + product.calories, 0),
+        "total.protein": products.reduce((total, product) => total + product.protein, 0),
+        "total.fat": products.reduce((total, product) => total + product.fat, 0),
+        "total.sugar": products.reduce((total, product) => total + product.sugar, 0),
+      })
     } catch (err) {
       toast.error(`❌ ${err.message}`, {
         position: "top-right",
@@ -92,11 +95,15 @@ const Day = () => {
     const dayRef = doc(db, "users", `${currentUser.uid}`, "days", `${id}`)
     await updateDoc(dayRef, {
       products: arrayRemove(prod),
+    })
 
-      "total.calories": increment(-prod.calories),
-      "total.protein": increment(-prod.protein),
-      "total.fat": increment(-prod.fat),
-      "total.sugar": increment(-prod.sugar),
+    const docSnap = await getDoc(dayRef)
+    const products = docSnap.data().products
+    await updateDoc(dayRef, {
+      "total.calories": products.reduce((total, product) => total + product.calories, 0),
+      "total.protein": products.reduce((total, product) => total + product.protein, 0),
+      "total.fat": products.reduce((total, product) => total + product.fat, 0),
+      "total.sugar": products.reduce((total, product) => total + product.sugar, 0),
     })
   }
 
