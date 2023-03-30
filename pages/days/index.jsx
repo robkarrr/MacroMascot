@@ -5,6 +5,7 @@ import {
   Container,
   Group,
   ScrollArea,
+  TextInput,
   Title,
 } from "@mantine/core"
 import { IconChevronRight, IconTrash } from "@tabler/icons"
@@ -16,15 +17,19 @@ import moment from "moment"
 import withAuth from "../../middlewares/withAuth"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import { DateInput } from "@mantine/dates"
+import { useState } from "react"
 
 const Days = () => {
   const { currentUser } = useAuthContext()
   const { docs: days } = useGetDays()
   const date = moment().format("DD-MM-YY")
+  const [value, setValue] = useState()
 
-  const newDay = async () => {
+  const newDay = async (e) => {
+    e.preventDefault()
     const checkDay = await getDoc(
-      doc(db, `users/${currentUser.uid}/days/${date}`)
+      doc(db, `users/${currentUser.uid}/days/${moment(value).format("DD-MM-YY")}`)
     )
 
     if (checkDay.exists()) {
@@ -39,8 +44,8 @@ const Days = () => {
         theme: "light",
       })
     } else {
-      await setDoc(doc(db, `users/${currentUser.uid}/days/${date}`), {
-        id: date,
+      await setDoc(doc(db, `users/${currentUser.uid}/days/${moment(value).format("DD-MM-YY")}`), {
+        id: moment(value).format("DD-MM-YY"),
       })
     }
   }
@@ -62,15 +67,20 @@ const Days = () => {
       </Title>
 
       <div>
-        <Group mt={"md"}>
-          <Button
-            onClick={() => newDay()}
-            className="bg-blue-500 hover:bg-blue-600"
-            type="submit"
-          >
-            New Day +
-          </Button>
-        </Group>
+        <form onSubmit={newDay}>
+          <Group mt={"md"}>
+            <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+              New Meal +
+            </Button>
+
+            <DateInput
+              value={value}
+              valueFormat="YYYY-MM-DD"
+              onChange={setValue}
+              placeholder="Date input"
+            />
+          </Group>
+        </form>
         <ScrollArea mt={"md"} type={"auto"} style={{ height: "50vh" }}>
           {days && (
             <ul>
@@ -80,7 +90,7 @@ const Days = () => {
                     className="bg-blue-500 p-2 rounded-md text-white w-11/12 hover:bg-blue-600"
                     href={`/days/${day.id}`}
                   >
-                    <li >{day.id}</li>
+                    <li>{day.id}</li>
                   </Link>
 
                   <ActionIcon onClick={() => deleteDay(day.id)}>
