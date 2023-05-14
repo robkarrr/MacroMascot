@@ -133,8 +133,6 @@ function HomePage() {
     const data = await FoodAPI.getFoodData(query)
 
     setFoodData(data)
-
-    console.log(currentUser)
   }
 
   const clearData = () => {
@@ -153,61 +151,84 @@ function HomePage() {
     const dayCheck = await getDoc(dayRef)
 
     if (dayCheck.exists()) {
-      try {
-        await updateDoc(dayRef, {
-          products: arrayUnion({
-            name,
-            serving_size: srv,
-            calories: c,
-            protein: p,
-            fat: f,
-            sugar: s,
-          }),
-        })
+      const docSnap = await getDoc(dayRef)
+      const products = docSnap.data().products
 
-        setFoodData(null)
-        const docSnap = await getDoc(dayRef)
-        const products = docSnap.data().products
-        await updateDoc(dayRef, {
-          "total.calories": products.reduce(
-            (total, product) => total + product.calories,
-            0
-          ),
-          "total.protein": products.reduce(
-            (total, product) => total + product.protein,
-            0
-          ),
-          "total.fat": products.reduce(
-            (total, product) => total + product.fat,
-            0
-          ),
-          "total.sugar": products.reduce(
-            (total, product) => total + product.sugar,
-            0
-          ),
-        })
+      if (
+        products &&
+        products.filter((p) => p.name === name && p.serving_size === srv)
+          .length > 0
+      ) {
+        toast.error(
+          `❌You already have this product. Try a different amount!`,
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          }
+        )
+      } else {
+        try {
+          await updateDoc(dayRef, {
+            products: arrayUnion({
+              name,
+              serving_size: srv,
+              calories: c,
+              protein: p,
+              fat: f,
+              sugar: s,
+            }),
+          })
 
-        toast.success("🥘 Product added!", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        })
-      } catch (err) {
-        toast.error(`❌ ${err.message}`, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        })
+          setFoodData(null)
+          const docSnap = await getDoc(dayRef)
+          const products = docSnap.data().products
+          await updateDoc(dayRef, {
+            "total.calories": products.reduce(
+              (total, product) => total + product.calories,
+              0
+            ),
+            "total.protein": products.reduce(
+              (total, product) => total + product.protein,
+              0
+            ),
+            "total.fat": products.reduce(
+              (total, product) => total + product.fat,
+              0
+            ),
+            "total.sugar": products.reduce(
+              (total, product) => total + product.sugar,
+              0
+            ),
+          })
+
+          toast.success("🥘 Product added!", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          })
+        } catch (err) {
+          toast.error(`❌ ${err.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          })
+        }
       }
     } else {
       try {
@@ -310,6 +331,7 @@ function HomePage() {
                   radius="xl"
                   variant="filled"
                   className="bg-blue-500"
+                  type="submit"
                 >
                   <IconArrowRight size={18} stroke={1.5} />
                 </ActionIcon>
