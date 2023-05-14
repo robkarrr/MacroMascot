@@ -27,12 +27,11 @@ import FoodAPI from "../../services/FoodAPI"
 import useGetMeal from "../../hooks/useGetMeal"
 import { db } from "../../firebase"
 import { useAuthContext } from "../../context/AuthContext"
-import BackButton from '../../Components/BackButton'
+import BackButton from "../../Components/BackButton"
 import withAuth from "../../middlewares/withAuth"
 import { AnimatePresence } from "framer-motion"
 import { ToastContainer, toast } from "react-toastify"
-import 'react-toastify/dist/ReactToastify.css';
-
+import "react-toastify/dist/ReactToastify.css"
 
 function Meal() {
   const router = useRouter()
@@ -55,30 +54,12 @@ function Meal() {
 
   const addProduct = async (name, srv, c, p, f, s) => {
     const mealRef = doc(db, "users", `${currentUser.uid}`, "meals", `${id}`)
+    const docSnap = await getDoc(mealRef)
+    const products = docSnap.data().products
 
-    try {
-      await updateDoc(mealRef, {
-        products: arrayUnion({
-          name,
-          serving_size: srv,
-          calories: c,
-          protein: p,
-          fat: f,
-          sugar: s,
-        }),
-      })
 
-      setFoodData(null)
-      const docSnap = await getDoc(mealRef)
-      const products = docSnap.data().products
-      await updateDoc(mealRef, {
-        "total.calories": products.reduce((total, product) => total + product.calories, 0),
-        "total.protein": products.reduce((total, product) => total + product.protein, 0),
-        "total.fat": products.reduce((total, product) => total + product.fat, 0),
-        "total.sugar": products.reduce((total, product) => total + product.sugar, 0),
-      })
-    } catch (err) {
-      toast.error(`❌ ${err.message}`, {
+    if (products && products.filter((p) => p.name === name && p.serving_size === srv).length > 0) {
+      toast.error(`❌You already have this product. Try a different amount!`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -88,6 +69,52 @@ function Meal() {
         progress: undefined,
         theme: "light",
       })
+    } else {
+      try {
+        await updateDoc(mealRef, {
+          products: arrayUnion({
+            name,
+            serving_size: srv,
+            calories: c,
+            protein: p,
+            fat: f,
+            sugar: s,
+          }),
+        })
+
+        setFoodData(null)
+        const docSnap = await getDoc(mealRef)
+        const products = docSnap.data().products
+        await updateDoc(mealRef, {
+          "total.calories": products.reduce(
+            (total, product) => total + product.calories,
+            0
+          ),
+          "total.protein": products.reduce(
+            (total, product) => total + product.protein,
+            0
+          ),
+          "total.fat": products.reduce(
+            (total, product) => total + product.fat,
+            0
+          ),
+          "total.sugar": products.reduce(
+            (total, product) => total + product.sugar,
+            0
+          ),
+        })
+      } catch (err) {
+        toast.error(`❌ ${err.message}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
+      }
     }
   }
 
@@ -102,10 +129,22 @@ function Meal() {
       const docSnap = await getDoc(mealRef)
       const products = docSnap.data().products
       await updateDoc(mealRef, {
-        "total.calories": products.reduce((total, product) => total + product.calories, 0),
-        "total.protein": products.reduce((total, product) => total + product.protein, 0),
-        "total.fat": products.reduce((total, product) => total + product.fat, 0),
-        "total.sugar": products.reduce((total, product) => total + product.sugar, 0),
+        "total.calories": products.reduce(
+          (total, product) => total + product.calories,
+          0
+        ),
+        "total.protein": products.reduce(
+          (total, product) => total + product.protein,
+          0
+        ),
+        "total.fat": products.reduce(
+          (total, product) => total + product.fat,
+          0
+        ),
+        "total.sugar": products.reduce(
+          (total, product) => total + product.sugar,
+          0
+        ),
       })
     } catch (err) {
       toast.error(`❌ ${err.message}`, {

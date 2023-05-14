@@ -46,29 +46,12 @@ const Day = () => {
 
   const addProduct = async (name, srv, c, p, f, s) => {
     const dayRef = doc(db, "users", `${currentUser.uid}`, "days", `${id}`)
-    try {
-      await updateDoc(dayRef, {
-        products: arrayUnion({
-          name,
-          serving_size: srv,
-          calories: c,
-          protein: p,
-          fat: f,
-          sugar: s,
-        }),
-      }),
+    const docSnap = await getDoc(dayRef)
+    const products = docSnap.data().products
+    
 
-      setFoodData(null)
-      const docSnap = await getDoc(dayRef)
-      const products = docSnap.data().products
-      await updateDoc(dayRef, {
-        "total.calories": products.reduce((total, product) => total + product.calories, 0),
-        "total.protein": products.reduce((total, product) => total + product.protein, 0),
-        "total.fat": products.reduce((total, product) => total + product.fat, 0),
-        "total.sugar": products.reduce((total, product) => total + product.sugar, 0),
-      })
-    } catch (err) {
-      toast.error(`❌ ${err.message}`, {
+    if (products && products.filter((p) => p.name === name && p.serving_size === srv).length > 0) {
+      toast.error(`❌You already have this product. Try a different amount!`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -78,6 +61,51 @@ const Day = () => {
         progress: undefined,
         theme: "light",
       })
+    } else {
+      try {
+        await updateDoc(dayRef, {
+          products: arrayUnion({
+            name,
+            serving_size: srv,
+            calories: c,
+            protein: p,
+            fat: f,
+            sugar: s,
+          }),
+        }),
+          setFoodData(null)
+        const docSnap = await getDoc(dayRef)
+        const products = docSnap.data().products
+        await updateDoc(dayRef, {
+          "total.calories": products.reduce(
+            (total, product) => total + product.calories,
+            0
+          ),
+          "total.protein": products.reduce(
+            (total, product) => total + product.protein,
+            0
+          ),
+          "total.fat": products.reduce(
+            (total, product) => total + product.fat,
+            0
+          ),
+          "total.sugar": products.reduce(
+            (total, product) => total + product.sugar,
+            0
+          ),
+        })
+      } catch (err) {
+        toast.error(`❌ ${err.message}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
+      }
     }
   }
 
@@ -100,10 +128,19 @@ const Day = () => {
     const docSnap = await getDoc(dayRef)
     const products = docSnap.data().products
     await updateDoc(dayRef, {
-      "total.calories": products.reduce((total, product) => total + product.calories, 0),
-      "total.protein": products.reduce((total, product) => total + product.protein, 0),
+      "total.calories": products.reduce(
+        (total, product) => total + product.calories,
+        0
+      ),
+      "total.protein": products.reduce(
+        (total, product) => total + product.protein,
+        0
+      ),
       "total.fat": products.reduce((total, product) => total + product.fat, 0),
-      "total.sugar": products.reduce((total, product) => total + product.sugar, 0),
+      "total.sugar": products.reduce(
+        (total, product) => total + product.sugar,
+        0
+      ),
     })
   }
 
